@@ -1,0 +1,40 @@
+.card-pdv {
+    border-radius: 20px;
+    background-color: #212F3D;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 100px;
+    position: relative;
+    box-shadow: 0 8px 15px rgba(40, 138, 237, 1); /* sombra azul por defecto */
+}
+
+    .card-pdv:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgb(0, 255, 33, 0.9); /* sombra roja en hover */
+    }
+
+.card-body,
+.card-header {
+    background: transparent !important;
+    color: white;
+    border-radius: 0;
+    box-shadow: none !important; /* <-- sin sombra */
+}
+
+.card-pdv:hover .card-body,
+.card-pdv:hover .card-header {
+    box-shadow: none !important; /* <-- sin sombra también en hover */
+}
+
+.icono-seleccion {
+    transition: color 0.3s ease;
+    color: white; /* o #ced4da si querés un gris clarito */
+}
+
+
+.card-pdv:hover .icono-seleccion {
+    color: red !important;
+}
