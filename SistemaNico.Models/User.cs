@@ -25,7 +25,13 @@ public partial class User
 
     public int IdEstado { get; set; }
 
-    public virtual EstadosUsuario IdEstadoNavigation { get; set; } = null!;
+    public virtual ICollection<Caja> Cajas { get; set; } = new List<Caja>();
 
-    public virtual Rol IdRolNavigation { get; set; } = null!;
+    public virtual ICollection<Gasto> Gastos { get; set; } = new List<Gasto>();
+
+    public virtual UsuariosEstado IdEstadoNavigation { get; set; } = null!;
+
+    public virtual UsuariosRoles IdRolNavigation { get; set; } = null!;
+
+    public virtual ICollection<Operaciones> Operaciones { get; set; } = new List<Operaciones>();
 }

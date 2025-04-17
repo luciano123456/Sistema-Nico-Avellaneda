@@ -13,7 +13,7 @@ namespace SistemaNico.Application.ContEstadosUsuariolers
     {
         private readonly IEstadosUsuariosService _EstadosUsuariosService;
 
-        public EstadosUsuariosController(IEstadosUsuariosService EstadosUsuariosService, IProvinciaService provinciaService)
+        public EstadosUsuariosController(IEstadosUsuariosService EstadosUsuariosService)
         {
             _EstadosUsuariosService = EstadosUsuariosService;
         }
@@ -36,7 +36,7 @@ namespace SistemaNico.Application.ContEstadosUsuariolers
         [HttpPost]
         public async Task<IActionResult> Insertar([FromBody] VMEstadosUsuarios model)
         {
-            var EstadosUsuario = new EstadosUsuario
+            var EstadosUsuario = new UsuariosEstado
             {
                 Id = model.Id,
                 Nombre = model.Nombre,
@@ -50,7 +50,7 @@ namespace SistemaNico.Application.ContEstadosUsuariolers
         [HttpPut]
         public async Task<IActionResult> Actualizar([FromBody] VMEstadosUsuarios model)
         {
-            var EstadosUsuario = new EstadosUsuario
+            var EstadosUsuario = new UsuariosEstado
             {
                 Id = model.Id,
                 Nombre = model.Nombre,

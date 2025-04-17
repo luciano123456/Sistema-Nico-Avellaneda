@@ -22,18 +22,13 @@ builder.Services.AddDbContext<SistemaNicoContext>(options =>
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 // Registrar repositorios y servicios
-builder.Services.AddScoped<IProvinciaRepository<Provincia>, ProvinciaRepository>();
-builder.Services.AddScoped<IProvinciaService, ProvinciaService>();
-builder.Services.AddScoped<IGenericRepository<Proveedor>, ProveedorRepository>();
-builder.Services.AddScoped<IProveedorService, ProveedorService>();
-
 builder.Services.AddScoped<IUsuariosRepository<User>, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
 
-builder.Services.AddScoped<IRolesRepository<Rol>, RolesRepository>();
+builder.Services.AddScoped<IRolesRepository<UsuariosRoles>, RolesRepository>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 
-builder.Services.AddScoped<IEstadosUsuariosRepository<EstadosUsuario>, EstadosUsuariosRepository>();
+builder.Services.AddScoped<IEstadosUsuariosRepository<UsuariosEstado>, EstadosUsuariosRepository>();
 builder.Services.AddScoped<IEstadosUsuariosService, EstadosUsuariosService>();
 
 builder.Services.AddScoped<ILoginRepository<User>, LoginRepository>();

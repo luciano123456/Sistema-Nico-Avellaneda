@@ -13,7 +13,7 @@ namespace SistemaNico.Application.Controllers
     {
         private readonly IRolesService _RolesService;
 
-        public RolesController(IRolesService RolesService, IProvinciaService provinciaService)
+        public RolesController(IRolesService RolesService)
         {
             _RolesService = RolesService;
         }
@@ -36,7 +36,7 @@ namespace SistemaNico.Application.Controllers
         [HttpPost]
         public async Task<IActionResult> Insertar([FromBody] VMRoles model)
         {
-            var Rol = new Rol
+            var Rol = new UsuariosRoles
             {
                 Id = model.Id,
                 Nombre = model.Nombre,
@@ -50,7 +50,7 @@ namespace SistemaNico.Application.Controllers
         [HttpPut]
         public async Task<IActionResult> Actualizar([FromBody] VMRoles model)
         {
-            var Rol = new Rol
+            var Rol = new UsuariosRoles
             {
                 Id = model.Id,
                 Nombre = model.Nombre,

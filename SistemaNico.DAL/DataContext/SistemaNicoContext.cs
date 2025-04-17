@@ -16,173 +16,210 @@ public partial class SistemaNicoContext : DbContext
     {
     }
 
-    public virtual DbSet<Estado> Estados { get; set; }
+    public virtual DbSet<Caja> Cajas { get; set; }
 
-    public virtual DbSet<EstadosUsuario> EstadosUsuarios { get; set; }
+    public virtual DbSet<Cuenta> Cuentas { get; set; }
 
-    public virtual DbSet<FormasdePago> FormasdePagos { get; set; }
+    public virtual DbSet<Gasto> Gastos { get; set; }
 
-    public virtual DbSet<Insumo> Insumos { get; set; }
+    public virtual DbSet<Modulo> Modulos { get; set; }
 
-    public virtual DbSet<InsumosCategoria> InsumosCategorias { get; set; }
+    public virtual DbSet<ModulosFunciones> ModulosFunciones { get; set; }
 
-    public virtual DbSet<InsumosStock> InsumosStocks { get; set; }
+    public virtual DbSet<Moneda> Monedas { get; set; }
 
-    public virtual DbSet<Local> Locales { get; set; }
+    public virtual DbSet<Operaciones> Operaciones { get; set; }
 
-    public virtual DbSet<Proveedor> Proveedores { get; set; }
+    public virtual DbSet<OperacionesTipo> OperacionesTipos { get; set; }
 
-    public virtual DbSet<Provincia> Provincias { get; set; }
-
-    public virtual DbSet<Rol> Roles { get; set; }
-
-    public virtual DbSet<UnidadesMedida> UnidadesMedida { get; set; }
-
-    public virtual DbSet<UnidadesNegocio> UnidadesNegocios { get; set; }
+    public virtual DbSet<PuntosDeVenta> PuntosDeVenta { get; set; }
 
     public virtual DbSet<User> Usuarios { get; set; }
 
+    public virtual DbSet<UsuariosEstado> UsuariosEstados { get; set; }
+
+    public virtual DbSet<UsuariosRoles> UsuariosRoles { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=DESKTOP-J2J16BG\\SQLEXPRESS; Database=Sistema_Panera; Integrated Security=true; Trusted_Connection=True; Encrypt=False");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-3MT5F5F; Database=Sistema_NicoAvellaneda; Integrated Security=true; Trusted_Connection=True; Encrypt=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Estado>(entity =>
+        modelBuilder.Entity<Caja>(entity =>
         {
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(255)
+            entity.Property(e => e.Concepto)
+                .HasMaxLength(200)
                 .IsUnicode(false);
+            entity.Property(e => e.Egreso).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Ingreso).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(60)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.IdCuentaNavigation).WithMany(p => p.Cajas)
+                .HasForeignKey(d => d.IdCuenta)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Cajas_Cuentas");
+
+            entity.HasOne(d => d.IdMonedaNavigation).WithMany(p => p.Cajas)
+                .HasForeignKey(d => d.IdMoneda)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Cajas_Monedas");
+
+            entity.HasOne(d => d.IdPuntoVentaNavigation).WithMany(p => p.Cajas)
+                .HasForeignKey(d => d.IdPuntoVenta)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Cajas_Puntos_De_Venta");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Cajas)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Cajas_Usuarios");
         });
 
-        modelBuilder.Entity<EstadosUsuario>(entity =>
+        modelBuilder.Entity<Cuenta>(entity =>
         {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.IdMoneda).ValueGeneratedOnAdd();
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-        });
 
-        modelBuilder.Entity<FormasdePago>(entity =>
-        {
-            entity.ToTable("FormasdePago");
-
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<Insumo>(entity =>
-        {
-            entity.Property(e => e.CostoUnitario).HasColumnType("decimal(20, 2)");
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-            entity.Property(e => e.FechaActualizacion).HasColumnType("datetime");
-            entity.Property(e => e.Sku)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.IdCategoriaNavigation).WithMany(p => p.Insumos)
-                .HasForeignKey(d => d.IdCategoria)
+            entity.HasOne(d => d.IdMonedaNavigation).WithMany(p => p.Cuenta)
+                .HasForeignKey(d => d.IdMoneda)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Insumos_Insumos_Categorias");
-
-            entity.HasOne(d => d.IdUnidadMedidaNavigation).WithMany(p => p.Insumos)
-                .HasForeignKey(d => d.IdUnidadMedida)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Insumos_Unidades_Medida");
-
-            entity.HasOne(d => d.IdUnidadNegocioNavigation).WithMany(p => p.Insumos)
-                .HasForeignKey(d => d.IdUnidadNegocio)
-                .HasConstraintName("FK_Insumos_Unidades_Negocio");
+                .HasConstraintName("FK_Cuentas_Monedas");
         });
 
-        modelBuilder.Entity<InsumosCategoria>(entity =>
+        modelBuilder.Entity<Gasto>(entity =>
         {
-            entity.ToTable("Insumos_Categorias");
-
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(255)
+            entity.Property(e => e.Concepto)
+                .HasMaxLength(300)
                 .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<InsumosStock>(entity =>
-        {
-            entity.ToTable("Insumos_Stock");
-
-            entity.Property(e => e.Egreso).HasColumnType("decimal(20, 2)");
-            entity.Property(e => e.Ingreso).HasColumnType("decimal(20, 2)");
-            entity.Property(e => e.TipoMovimiento)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<Local>(entity =>
-        {
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(150)
-                .IsUnicode(false);
-
-            entity.HasOne(d => d.IdUnidadNegocioNavigation).WithMany(p => p.Locales)
-                .HasForeignKey(d => d.IdUnidadNegocio)
-                .HasConstraintName("FK_Locales_Unidades_Negocio");
-        });
-
-        modelBuilder.Entity<Proveedor>(entity =>
-        {
-            entity.Property(e => e.Apodo)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Cbu)
-                .HasMaxLength(100)
-                .IsUnicode(false)
-                .HasColumnName("CBU");
-            entity.Property(e => e.Cuit)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("CUIT");
-            entity.Property(e => e.Nombre)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.Telefono)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Ubicacion)
+            entity.Property(e => e.FechaHoraRegistro).HasColumnType("datetime");
+            entity.Property(e => e.Importe).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.NotaInterna)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.IdCuentaNavigation).WithMany(p => p.Gastos)
+                .HasForeignKey(d => d.IdCuenta)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Gastos_Cuentas");
+
+            entity.HasOne(d => d.IdMonedaNavigation).WithMany(p => p.Gastos)
+                .HasForeignKey(d => d.IdMoneda)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Gastos_Monedas");
+
+            entity.HasOne(d => d.IdPuntoVentaNavigation).WithMany(p => p.Gastos)
+                .HasForeignKey(d => d.IdPuntoVenta)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Gastos_Puntos_De_Venta");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Gastos)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Gastos_Usuarios");
         });
 
-        modelBuilder.Entity<Provincia>(entity =>
+        modelBuilder.Entity<Modulo>(entity =>
         {
             entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
+                .HasMaxLength(50)
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Rol>(entity =>
+        modelBuilder.Entity<ModulosFunciones>(entity =>
+        {
+            entity.ToTable("Modulos_Funciones");
+
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.IdModuloNavigation).WithMany(p => p.ModulosFunciones)
+                .HasForeignKey(d => d.IdModulo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Modulos_Funciones_Modulos");
+        });
+
+        modelBuilder.Entity<Moneda>(entity =>
         {
             entity.Property(e => e.Nombre)
-                .HasMaxLength(100)
+                .HasMaxLength(50)
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<UnidadesMedida>(entity =>
+        modelBuilder.Entity<Operaciones>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK_ProductosUnidadesDeMedida");
+            entity.Property(e => e.Conversion).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Cotizacion).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Fecha).HasColumnType("date");
+            entity.Property(e => e.FechaHoraRegistro).HasColumnType("datetime");
+            entity.Property(e => e.ImporteEgreso).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ImporteIngreso).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.NotaInterna)
+                .HasMaxLength(500)
+                .IsUnicode(false);
 
-            entity.ToTable("Unidades_Medida");
+            entity.HasOne(d => d.IdCajaAsociadoNavigation).WithMany(p => p.Operaciones)
+                .HasForeignKey(d => d.IdCajaAsociado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Cajas");
+
+            entity.HasOne(d => d.IdCuentaEgresoNavigation).WithMany(p => p.OperacioneIdCuentaEgresoNavigations)
+                .HasForeignKey(d => d.IdCuentaEgreso)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Cuentas1");
+
+            entity.HasOne(d => d.IdCuentaIngresoNavigation).WithMany(p => p.OperacioneIdCuentaIngresoNavigations)
+                .HasForeignKey(d => d.IdCuentaIngreso)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Cuentas");
+
+            entity.HasOne(d => d.IdMonedaEgresoNavigation).WithMany(p => p.OperacioneIdMonedaEgresoNavigations)
+                .HasForeignKey(d => d.IdMonedaEgreso)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Monedas1");
+
+            entity.HasOne(d => d.IdMonedaIngresoNavigation).WithMany(p => p.OperacioneIdMonedaIngresoNavigations)
+                .HasForeignKey(d => d.IdMonedaIngreso)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Monedas");
+
+            entity.HasOne(d => d.IdPuntoVentaNavigation).WithMany(p => p.Operaciones)
+                .HasForeignKey(d => d.IdPuntoVenta)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Puntos_De_Venta");
+
+            entity.HasOne(d => d.IdTipoNavigation).WithMany(p => p.Operaciones)
+                .HasForeignKey(d => d.IdTipo)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Operaciones_Tipos");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Operaciones)
+                .HasForeignKey(d => d.IdUsuario)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Usuarios");
+        });
+
+        modelBuilder.Entity<OperacionesTipo>(entity =>
+        {
+            entity.ToTable("Operaciones_Tipos");
 
             entity.Property(e => e.Nombre)
-                .HasMaxLength(255)
+                .HasMaxLength(50)
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<UnidadesNegocio>(entity =>
+        modelBuilder.Entity<PuntosDeVenta>(entity =>
         {
-            entity.ToTable("Unidades_Negocio");
+            entity.ToTable("Puntos_De_Venta");
 
             entity.Property(e => e.Nombre)
-                .HasMaxLength(150)
+                .HasMaxLength(300)
                 .IsUnicode(false);
         });
 
@@ -214,11 +251,30 @@ public partial class SistemaNicoContext : DbContext
             entity.HasOne(d => d.IdEstadoNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdEstado)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Usuarios_EstadosUsuarios");
+                .HasConstraintName("FK_Usuarios_Usuarios_Estados");
 
             entity.HasOne(d => d.IdRolNavigation).WithMany(p => p.Usuarios)
                 .HasForeignKey(d => d.IdRol)
-                .HasConstraintName("FK_Usuarios_Roles");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Usuarios_Usuarios_Roles");
+        });
+
+        modelBuilder.Entity<UsuariosEstado>(entity =>
+        {
+            entity.ToTable("Usuarios_Estados");
+
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UsuariosRoles>(entity =>
+        {
+            entity.ToTable("Usuarios_Roles");
+
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         OnModelCreatingPartial(modelBuilder);

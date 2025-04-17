@@ -38,14 +38,5 @@ namespace SistemaNico.DAL.Repository
             return true;
         }
 
-        public async Task<IQueryable<Provincia>> ObtenerTodos()
-        {
-            IQueryable<Provincia> query = _dbcontext.Provincias;
-            return query;
-        }
-
-  
-
-
     }
 }
