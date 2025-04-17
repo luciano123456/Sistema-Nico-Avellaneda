@@ -11,46 +11,45 @@ using SistemaNico.DAL.DataContext;
 
 namespace SistemaNico.DAL.Repository
 {
-    public class ProveedorRepository : IGenericRepository<Models.Proveedor>
+    public class PuntosDeVentaRepository : IPuntosDeVentaRepository<PuntosDeVenta>
     {
 
         private readonly SistemaNicoContext _dbcontext;
 
-        public ProveedorRepository(SistemaNicoContext context)
+        public PuntosDeVentaRepository(SistemaNicoContext context)
         {
             _dbcontext = context;
         }
-        public async Task<bool> Actualizar(Models.Proveedor model)
+        public async Task<bool> Actualizar(PuntosDeVenta model)
         {
-            _dbcontext.Proveedores.Update(model);
+            _dbcontext.PuntosDeVenta.Update(model);
             await _dbcontext.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> Eliminar(int id)
         {
-            Models.Proveedor model = _dbcontext.Proveedores.First(c => c.Id == id);
-            _dbcontext.Proveedores.Remove(model);
+            PuntosDeVenta model = _dbcontext.PuntosDeVenta.First(c => c.Id == id);
+            _dbcontext.PuntosDeVenta.Remove(model);
             await _dbcontext.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> Insertar(Models.Proveedor model)
+        public async Task<bool> Insertar(PuntosDeVenta model)
         {
-            _dbcontext.Proveedores.Add(model);
+            _dbcontext.PuntosDeVenta.Add(model);
             await _dbcontext.SaveChangesAsync();
             return true;
         }
 
-        public async Task<Models.Proveedor> Obtener(int id)
+        public async Task<PuntosDeVenta> Obtener(int id)
         {
-            Models.Proveedor model = await _dbcontext.Proveedores.FindAsync(id);
+            PuntosDeVenta model = await _dbcontext.PuntosDeVenta.FindAsync(id);
             return model;
         }
-
-        public async Task<IQueryable<Models.Proveedor>> ObtenerTodos()
+        public async Task<IQueryable<PuntosDeVenta>> ObtenerTodos()
         {
-            IQueryable<Models.Proveedor> query = _dbcontext.Proveedores;
+            IQueryable<PuntosDeVenta> query = _dbcontext.PuntosDeVenta;
             return await Task.FromResult(query);
         }
 

@@ -11,7 +11,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SistemaNico.DAL.Repository
 {
-    public class RolesRepository : IRolesRepository<Rol>
+    public class RolesRepository : IRolesRepository<UsuariosRoles>
     {
 
         private readonly SistemaNicoContext _dbcontext;
@@ -20,36 +20,36 @@ namespace SistemaNico.DAL.Repository
         {
             _dbcontext = context;
         }
-        public async Task<bool> Actualizar(Rol model)
+        public async Task<bool> Actualizar(UsuariosRoles model)
         {
-            _dbcontext.Roles.Update(model);
+            _dbcontext.UsuariosRoles.Update(model);
             await _dbcontext.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> Eliminar(int id)
         {
-            Rol model = _dbcontext.Roles.First(c => c.Id == id);
-            _dbcontext.Roles.Remove(model);
+            UsuariosRoles model = _dbcontext.UsuariosRoles.First(c => c.Id == id);
+            _dbcontext.UsuariosRoles.Remove(model);
             await _dbcontext.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> Insertar(Rol model)
+        public async Task<bool> Insertar(UsuariosRoles model)
         {
-            _dbcontext.Roles.Add(model);
+            _dbcontext.UsuariosRoles.Add(model);
             await _dbcontext.SaveChangesAsync();
             return true;
         }
 
-        public async Task<Rol> Obtener(int id)
+        public async Task<UsuariosRoles> Obtener(int id)
         {
-            Rol model = await _dbcontext.Roles.FindAsync(id);
+            UsuariosRoles model = await _dbcontext.UsuariosRoles.FindAsync(id);
             return model;
         }
-        public async Task<IQueryable<Rol>> ObtenerTodos()
+        public async Task<IQueryable<UsuariosRoles>> ObtenerTodos()
         {
-            IQueryable<Rol> query = _dbcontext.Roles;
+            IQueryable<UsuariosRoles> query = _dbcontext.UsuariosRoles;
             return await Task.FromResult(query);
         }
 

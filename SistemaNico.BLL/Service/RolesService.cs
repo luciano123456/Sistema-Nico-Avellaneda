@@ -6,13 +6,13 @@ namespace SistemaNico.BLL.Service
     public class RolesService : IRolesService
     {
 
-        private readonly IRolesRepository<Rol> _contactRepo;
+        private readonly IRolesRepository<UsuariosRoles> _contactRepo;
 
-        public RolesService(IRolesRepository<Rol> contactRepo)
+        public RolesService(IRolesRepository<UsuariosRoles> contactRepo)
         {
             _contactRepo = contactRepo;
         }
-        public async Task<bool> Actualizar(Rol model)
+        public async Task<bool> Actualizar(UsuariosRoles model)
         {
             return await _contactRepo.Actualizar(model);
         }
@@ -22,18 +22,18 @@ namespace SistemaNico.BLL.Service
             return await _contactRepo.Eliminar(id);
         }
 
-        public async Task<bool> Insertar(Rol model)
+        public async Task<bool> Insertar(UsuariosRoles model)
         {
             return await _contactRepo.Insertar(model);
         }
 
-        public async Task<Rol> Obtener(int id)
+        public async Task<UsuariosRoles> Obtener(int id)
         {
             return await _contactRepo.Obtener(id);
         }
 
 
-        public async Task<IQueryable<Rol>> ObtenerTodos()
+        public async Task<IQueryable<UsuariosRoles>> ObtenerTodos()
         {
             return await _contactRepo.ObtenerTodos();
         }

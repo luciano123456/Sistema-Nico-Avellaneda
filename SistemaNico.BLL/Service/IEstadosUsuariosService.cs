@@ -5,12 +5,12 @@ namespace SistemaNico.BLL.Service
     public interface IEstadosUsuariosService
     {
         Task<bool> Eliminar(int id);
-        Task<bool> Actualizar(EstadosUsuario model);
-        Task<bool> Insertar(EstadosUsuario model);
+        Task<bool> Actualizar(UsuariosEstado model);
+        Task<bool> Insertar(UsuariosEstado model);
 
-        Task<EstadosUsuario> Obtener(int id);
+        Task<UsuariosEstado> Obtener(int id);
 
-        Task<IQueryable<EstadosUsuario>> ObtenerTodos();
+        Task<IQueryable<UsuariosEstado>> ObtenerTodos();
     }
 
 }

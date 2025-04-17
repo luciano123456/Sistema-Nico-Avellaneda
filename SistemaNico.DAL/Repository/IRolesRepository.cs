@@ -11,9 +11,9 @@ namespace SistemaNico.DAL.Repository
     public interface IRolesRepository<TEntityModel> where TEntityModel : class
     {
         Task<bool> Eliminar(int id);
-        Task<bool> Actualizar(Rol model);
-        Task<bool> Insertar(Rol model);
-        Task<Rol> Obtener(int id);
-        Task<IQueryable<Rol>> ObtenerTodos();
+        Task<bool> Actualizar(UsuariosRoles model);
+        Task<bool> Insertar(UsuariosRoles model);
+        Task<UsuariosRoles> Obtener(int id);
+        Task<IQueryable<UsuariosRoles>> ObtenerTodos();
     }
 }
