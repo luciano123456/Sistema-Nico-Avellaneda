@@ -25,6 +25,10 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddScoped<IUsuariosRepository<User>, UsuariosRepository>();
 builder.Services.AddScoped<IUsuariosService, UsuariosService>();
 
+builder.Services.AddScoped<IPuntosDeVentaRepository<PuntosDeVenta>, PuntosDeVentaRepository>();
+builder.Services.AddScoped<IPuntosDeVentaService, PuntosDeVentaService>();
+
+
 builder.Services.AddScoped<IRolesRepository<UsuariosRoles>, RolesRepository>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 

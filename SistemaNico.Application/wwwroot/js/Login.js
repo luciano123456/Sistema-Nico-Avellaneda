@@ -58,7 +58,7 @@
 
                     // Redirigir a la página principal
                     localStorage.setItem('userSession', JSON.stringify(data.user)); // Guardar el usuario
-                    window.location.href = data.redirectUrl;
+                    window.location.href = data.redirectUrl + 'PuntosDeVenta/Login';
                 } else {
                     // Mostrar el mensaje de error
                     $(document).ready(function () {

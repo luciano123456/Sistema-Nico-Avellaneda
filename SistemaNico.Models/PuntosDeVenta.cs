@@ -8,6 +8,7 @@ public partial class PuntosDeVenta
     public int Id { get; set; }
 
     public string Nombre { get; set; } = null!;
+    public int Activo { get; set; }
 
     public virtual ICollection<Caja> Cajas { get; set; } = new List<Caja>();
 

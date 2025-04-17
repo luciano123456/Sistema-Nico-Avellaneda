@@ -38,6 +38,11 @@ namespace SistemaNico.BLL.Service
             return await _contactRepo.ObtenerTodos();
         }
 
+        public async Task<IQueryable<PuntosDeVenta>> ObtenerActivos()
+        {
+            return await _contactRepo.ObtenerActivos();
+        }
+
 
 
     }

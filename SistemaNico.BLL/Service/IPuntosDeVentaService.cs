@@ -9,7 +9,7 @@ namespace SistemaNico.BLL.Service
         Task<bool> Insertar(PuntosDeVenta model);
 
         Task<PuntosDeVenta> Obtener(int id);
-
+        Task<IQueryable<PuntosDeVenta>> ObtenerActivos();
         Task<IQueryable<PuntosDeVenta>> ObtenerTodos();
     }
 

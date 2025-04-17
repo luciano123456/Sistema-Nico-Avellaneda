@@ -15,5 +15,6 @@ namespace SistemaNico.DAL.Repository
         Task<bool> Insertar(PuntosDeVenta model);
         Task<PuntosDeVenta> Obtener(int id);
         Task<IQueryable<PuntosDeVenta>> ObtenerTodos();
+        Task<IQueryable<PuntosDeVenta>> ObtenerActivos();
     }
 }

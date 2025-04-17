@@ -49,9 +49,21 @@ namespace SistemaNico.DAL.Repository
         }
         public async Task<IQueryable<PuntosDeVenta>> ObtenerTodos()
         {
-            IQueryable<PuntosDeVenta> query = _dbcontext.PuntosDeVenta;
+            IQueryable<PuntosDeVenta> query = _dbcontext.PuntosDeVenta
+                .OrderByDescending(p => p.Activo); // primero los activos
+
             return await Task.FromResult(query);
         }
+
+        public async Task<IQueryable<PuntosDeVenta>> ObtenerActivos()
+        {
+            IQueryable<PuntosDeVenta> query = _dbcontext.PuntosDeVenta
+                .Where(x=> x.Activo == 1)
+                .OrderByDescending(p => p.Activo); // primero los activos
+
+            return await Task.FromResult(query);
+        }
+
 
 
 
