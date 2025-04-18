@@ -80,8 +80,6 @@ public partial class SistemaNicoContext : DbContext
 
         modelBuilder.Entity<Cuenta>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.IdMoneda).ValueGeneratedOnAdd();
             entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .IsUnicode(false);
