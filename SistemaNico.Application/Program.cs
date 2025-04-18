@@ -32,6 +32,9 @@ builder.Services.AddScoped<IPuntosDeVentaService, PuntosDeVentaService>();
 builder.Services.AddScoped<IRolesRepository<UsuariosRoles>, RolesRepository>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 
+builder.Services.AddScoped<IMonedasRepository<Moneda>, MonedasRepository>();
+builder.Services.AddScoped<IMonedasService, MonedasService>();
+
 builder.Services.AddScoped<IEstadosUsuariosRepository<UsuariosEstado>, EstadosUsuariosRepository>();
 builder.Services.AddScoped<IEstadosUsuariosService, EstadosUsuariosService>();
 
