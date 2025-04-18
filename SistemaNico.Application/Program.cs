@@ -29,6 +29,9 @@ builder.Services.AddScoped<IPuntosDeVentaRepository<PuntosDeVenta>, PuntosDeVent
 builder.Services.AddScoped<IPuntosDeVentaService, PuntosDeVentaService>();
 
 
+builder.Services.AddScoped<ICuentasRepository<Cuenta>, CuentasRepository>();
+builder.Services.AddScoped<ICuentasService, CuentasService>();
+
 builder.Services.AddScoped<IRolesRepository<UsuariosRoles>, RolesRepository>();
 builder.Services.AddScoped<IRolesService, RolesService>();
 

@@ -10,6 +10,7 @@ public partial class Cuenta
     public string Nombre { get; set; } = null!;
 
     public int IdMoneda { get; set; }
+    public int Activo { get; set; }
 
     public virtual ICollection<Caja> Cajas { get; set; } = new List<Caja>();
 
