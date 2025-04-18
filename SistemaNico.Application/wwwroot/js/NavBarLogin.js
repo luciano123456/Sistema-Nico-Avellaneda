@@ -102,13 +102,14 @@ async function llenarConfiguraciones() {
     }
 }
 
-
 async function eliminarConfiguracion(id) {
     let resultado = window.confirm("¿Desea eliminar la " + nombreConfiguracion + "?");
 
     if (resultado) {
         try {
-            const response = await fetch(controllerConfiguracion + "/Eliminar?id=" + id, {
+            const controller = controllerConfiguracion.replace(/^\/+/, "");
+
+            const response = await fetch("/" + controller + "/Eliminar?id=" + id, {
                 method: "DELETE"
             });
 
@@ -119,9 +120,8 @@ async function eliminarConfiguracion(id) {
             const dataJson = await response.json();
 
             if (dataJson.valor) {
-                llenarConfiguraciones()
-
-                exitoModal(nombreConfiguracion + " eliminada correctamente")
+                llenarConfiguraciones();
+                exitoModal(nombreConfiguracion + " eliminada correctamente");
             }
         } catch (error) {
             console.error("Ha ocurrido un error:", error);
@@ -129,9 +129,10 @@ async function eliminarConfiguracion(id) {
     }
 }
 
-
 const editarConfiguracion = id => {
-    fetch(controllerConfiguracion + "/EditarInfo?id=" + id)
+    const controller = controllerConfiguracion.replace(/^\/+/, ""); // limpia posibles barras
+
+    fetch("/" + controller + "/EditarInfo?id=" + id)
         .then(response => {
             if (!response.ok) throw new Error("Ha ocurrido un error.");
             return response.json();
@@ -152,7 +153,6 @@ const editarConfiguracion = id => {
         });
 }
 
-
 function validarCamposConfiguracion() {
     const nombre = $("#txtNombreConfiguracion").val();
     const camposValidos = nombre !== "";
@@ -171,7 +171,8 @@ function guardarCambiosConfiguracion() {
             "Nombre": $("#txtNombreConfiguracion").val(),
         };
 
-        const url = idConfiguracion === "" ? controllerConfiguracion + "/Insertar" : controllerConfiguracion + "/Actualizar";
+        const controller = controllerConfiguracion.replace(/^\/+/, ""); // quita barras si las tiene
+        const url = "/" + controller + (idConfiguracion === "" ? "/Insertar" : "/Actualizar");
         const method = idConfiguracion === "" ? "POST" : "PUT";
 
         fetch(url, {
