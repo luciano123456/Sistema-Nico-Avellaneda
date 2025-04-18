@@ -9,6 +9,7 @@
     margin-top: 100px;
     position: relative;
     box-shadow: 0 8px 15px rgba(40, 138, 237, 1); /* sombra azul por defecto */
+    cursor: pointer;
 }
 
     .card-pdv:hover {
