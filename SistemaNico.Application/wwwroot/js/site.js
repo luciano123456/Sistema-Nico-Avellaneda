@@ -23,20 +23,12 @@ async function MakeAjaxFormData(options) {
     });
 }
 
-
-function formatNumber(number) {
-    if (typeof number !== 'number' || isNaN(number)) {
-        return "$0.00"; // Devuelve un valor predeterminado si 'number' no es válido
-    }
-
-    // Asegúrate de que el número tenga dos decimales
-    const parts = number.toFixed(2).split(".");
-
-    // Formatea la parte entera con puntos como separadores de miles
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-    // Combina la parte entera y la parte decimal
-    return "$" + parts.join(",");
+function formatNumber(valor) {
+    const num = Number(valor);
+    return isNaN(num) ? "" : `$ ${num.toLocaleString("es-AR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 }
 
 
@@ -67,10 +59,18 @@ const formatoMoneda = new Intl.NumberFormat('es-AR', {
     minimumFractionDigits: 2
 });
 
-function convertirMonedaAfloat(moneda) {
-    // Eliminar el símbolo de la moneda y reemplazar la coma por un punto
-    return parseFloat(moneda.replace(/[^0-9,.-]/g, '').replace(',', '.'));
+function convertirMonedaAfloat(valor) {
+    if (!valor) return 0;
+
+    // Eliminar cualquier carácter que no sea número, punto, coma o signo menos
+    valor = valor.replace(/[^\d.,-]/g, '');
+
+    // Reemplazar separadores (puntos de mil a nada, coma decimal a punto)
+    valor = valor.replace(/\./g, '').replace(',', '.');
+
+    return parseFloat(valor);
 }
+
 
 function convertirAMonedaDecimal(valor) {
     // Reemplazar coma por punto
@@ -88,6 +88,15 @@ function formatoNumero(valor) {
 
 function parseDecimal(value) {
     return parseFloat(value.replace(',', '.'));
+}
+
+function formatearMoneda(valor) {
+    const numero = Number(valor.toString().replace(/\./g, "").replace(",", "."));
+    if (isNaN(numero)) return "";
+    return `$ ${numero.toLocaleString('es-AR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 }
 
 
@@ -133,4 +142,5 @@ function toggleAcciones(id) {
         document.body.appendChild(dropdownClone);
     }
 }
+
 

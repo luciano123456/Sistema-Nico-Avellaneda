@@ -39,7 +39,7 @@ namespace SistemaNico.Application.Controllers
             {
                 Id = c.Id,
                 Nombre = c.Nombre,
-                Activo = c.Activo,
+                Activo = (int)c.Activo,
             }).ToList();
 
             return Ok(lista);
@@ -54,7 +54,7 @@ namespace SistemaNico.Application.Controllers
             {
                 Id = c.Id,
                 Nombre = c.Nombre,
-                Activo = c.Activo,
+                Activo = (int)c.Activo,
             }).ToList();
 
             return Ok(lista);

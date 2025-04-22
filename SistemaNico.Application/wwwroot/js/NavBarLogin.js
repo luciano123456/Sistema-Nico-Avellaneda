@@ -6,6 +6,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var userSession = JSON.parse(localStorage.getItem('userSession'));
 
     if (userSession) {
+
+        if (userSession.IdRol == 1) {
+            document.getElementById("seccionPuntosDeVenta").removeAttribute("hidden");
+            document.getElementById("seccionCuentas").removeAttribute("hidden");
+            document.getElementById("seccionConfiguraciones").removeAttribute("hidden");
+        }
         // Si el usuario está en el localStorage, actualizar el texto del enlace
         var userFullName = userSession.Nombre + ' ' + userSession.Apellido;
         $("#userName").html('<i class="fa fa-user"></i> ' + userFullName); // Cambiar el contenido del enlace

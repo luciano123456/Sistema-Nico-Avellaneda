@@ -33,5 +33,7 @@ public partial class User
 
     public virtual UsuariosRoles IdRolNavigation { get; set; } = null!;
 
-    public virtual ICollection<Operaciones> Operaciones { get; set; } = new List<Operaciones>();
+    public virtual ICollection<Operaciones> OperacioneIdUsuarioActualizacionNavigations { get; set; } = new List<Operaciones>();
+
+    public virtual ICollection<Operaciones> OperacioneIdUsuarioNavigations { get; set; } = new List<Operaciones>();
 }

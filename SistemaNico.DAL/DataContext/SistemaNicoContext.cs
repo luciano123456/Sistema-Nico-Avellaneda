@@ -52,9 +52,10 @@ public partial class SistemaNicoContext : DbContext
                 .HasMaxLength(200)
                 .IsUnicode(false);
             entity.Property(e => e.Egreso).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Ingreso).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Tipo)
-                .HasMaxLength(60)
+                .HasMaxLength(100)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.IdCuentaNavigation).WithMany(p => p.Cajas)
@@ -152,20 +153,24 @@ public partial class SistemaNicoContext : DbContext
 
         modelBuilder.Entity<Operaciones>(entity =>
         {
-            entity.Property(e => e.Conversion).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Cotizacion).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.Fecha).HasColumnType("date");
-            entity.Property(e => e.FechaHoraRegistro).HasColumnType("datetime");
+            entity.Property(e => e.Fecha).HasColumnType("datetime");
+            entity.Property(e => e.FechaActualizacion).HasColumnType("datetime");
             entity.Property(e => e.ImporteEgreso).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.ImporteIngreso).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.NotaInterna)
                 .HasMaxLength(500)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.IdCajaAsociadoNavigation).WithMany(p => p.Operaciones)
-                .HasForeignKey(d => d.IdCajaAsociado)
+            entity.HasOne(d => d.IdCajaEgresoNavigation).WithMany(p => p.OperacioneIdCajaEgresoNavigations)
+                .HasForeignKey(d => d.IdCajaEgreso)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Operaciones_Cajas");
+
+            entity.HasOne(d => d.IdCajaIngresoNavigation).WithMany(p => p.OperacioneIdCajaIngresoNavigations)
+                .HasForeignKey(d => d.IdCajaIngreso)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Operaciones_Cajas1");
 
             entity.HasOne(d => d.IdCuentaEgresoNavigation).WithMany(p => p.OperacioneIdCuentaEgresoNavigations)
                 .HasForeignKey(d => d.IdCuentaEgreso)
@@ -197,10 +202,14 @@ public partial class SistemaNicoContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Operaciones_Operaciones_Tipos");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Operaciones)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.OperacioneIdUsuarioNavigations)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Operaciones_Usuarios");
+
+            entity.HasOne(d => d.IdUsuarioActualizacionNavigation).WithMany(p => p.OperacioneIdUsuarioActualizacionNavigations)
+                .HasForeignKey(d => d.IdUsuarioActualizacion)
+                .HasConstraintName("FK_Operaciones_Usuarios1");
         });
 
         modelBuilder.Entity<OperacionesTipo>(entity =>

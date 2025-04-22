@@ -11,11 +11,11 @@ public partial class Caja
 
     public int IdPuntoVenta { get; set; }
 
-    public int FechaHoraRegistro { get; set; }
+    public DateTime Fecha { get; set; }
 
     public int IdTipo { get; set; }
 
-    public string Tipo { get; set; } = null!;
+    public string? Tipo { get; set; }
 
     public int IdMoneda { get; set; }
 
@@ -23,7 +23,7 @@ public partial class Caja
 
     public string Concepto { get; set; } = null!;
 
-    public decimal Ingreso { get; set; }
+    public decimal? Ingreso { get; set; }
 
     public decimal Egreso { get; set; }
 
@@ -35,5 +35,7 @@ public partial class Caja
 
     public virtual User IdUsuarioNavigation { get; set; } = null!;
 
-    public virtual ICollection<Operaciones> Operaciones { get; set; } = new List<Operaciones>();
+    public virtual ICollection<Operaciones> OperacioneIdCajaEgresoNavigations { get; set; } = new List<Operaciones>();
+
+    public virtual ICollection<Operaciones> OperacioneIdCajaIngresoNavigations { get; set; } = new List<Operaciones>();
 }
