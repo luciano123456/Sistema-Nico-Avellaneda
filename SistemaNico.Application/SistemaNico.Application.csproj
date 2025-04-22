@@ -12,6 +12,7 @@
     <Content Remove="wwwroot\js\Home.js" />
     <Content Remove="wwwroot\js\Login.js" />
     <Content Remove="wwwroot\js\NavBarLogin.js" />
+    <Content Remove="wwwroot\js\Operaciones.js" />
     <Content Remove="wwwroot\js\PuntosDeVenta.js" />
     <Content Remove="wwwroot\js\PuntosDeVentaLogin.js" />
     <Content Remove="wwwroot\js\Usuarios.js" />
@@ -25,6 +26,7 @@
     <None Include="wwwroot\js\Cuentas.js" />
     <None Include="wwwroot\js\PuntosDeVentaLogin.js" />
     <None Include="wwwroot\js\PuntosDeVenta.js" />
+    <None Include="wwwroot\js\Operaciones.js" />
     <None Include="wwwroot\js\UsuariosConfiguracion.js" />
     <None Include="wwwroot\js\Usuarios.js" />
     <None Include="wwwroot\js\NavBarLogin.js" />

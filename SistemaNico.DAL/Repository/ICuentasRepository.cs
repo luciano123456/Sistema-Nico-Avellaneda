@@ -16,5 +16,6 @@ namespace SistemaNico.DAL.Repository
         Task<Cuenta> Obtener(int id);
         Task<IQueryable<Cuenta>> ObtenerTodos();
         Task<IQueryable<Cuenta>> ObtenerActivos();
+        Task<IQueryable<Cuenta>> ObtenerPorMoneda(int IdMoneda);
     }
 }

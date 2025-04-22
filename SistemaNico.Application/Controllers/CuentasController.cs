@@ -39,12 +39,29 @@ namespace SistemaNico.Application.Controllers
             {
                 Id = c.Id,
                 Nombre = c.Nombre,
-                Activo = c.Activo,
+                Activo = (int)c.Activo,
                 IdMoneda = c.IdMoneda
             }).ToList();
 
             return Ok(lista);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ListaPorMoneda(int IdMoneda)
+        {
+            var Roles = await _CuentasService.ObtenerPorMoneda(IdMoneda);
+
+            var lista = Roles.Select(c => new VMCuentas
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Activo = (int)c.Activo,
+                IdMoneda = c.IdMoneda
+            }).ToList();
+
+            return Ok(lista);
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> ListaActivos()
@@ -55,7 +72,7 @@ namespace SistemaNico.Application.Controllers
             {
                 Id = c.Id,
                 Nombre = c.Nombre,
-                Activo = c.Activo,
+                Activo = (int)c.Activo,
                 IdMoneda = c.IdMoneda
             }).ToList();
 

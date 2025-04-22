@@ -11,8 +11,6 @@ public partial class Operaciones
 
     public int IdPuntoVenta { get; set; }
 
-    public DateTime FechaHoraRegistro { get; set; }
-
     public DateTime Fecha { get; set; }
 
     public int IdTipo { get; set; }
@@ -25,8 +23,6 @@ public partial class Operaciones
 
     public decimal Cotizacion { get; set; }
 
-    public decimal Conversion { get; set; }
-
     public int IdMonedaEgreso { get; set; }
 
     public int IdCuentaEgreso { get; set; }
@@ -34,10 +30,19 @@ public partial class Operaciones
     public decimal ImporteEgreso { get; set; }
 
     public string? NotaInterna { get; set; }
+    public string? Cliente { get; set; }
 
-    public int IdCajaAsociado { get; set; }
+    public int IdCajaEgreso { get; set; }
 
-    public virtual Caja IdCajaAsociadoNavigation { get; set; } = null!;
+    public int IdCajaIngreso { get; set; }
+
+    public int? IdUsuarioActualizacion { get; set; }
+
+    public DateTime? FechaActualizacion { get; set; }
+
+    public virtual Caja IdCajaEgresoNavigation { get; set; } = null!;
+
+    public virtual Caja IdCajaIngresoNavigation { get; set; } = null!;
 
     public virtual Cuenta IdCuentaEgresoNavigation { get; set; } = null!;
 
@@ -50,6 +55,8 @@ public partial class Operaciones
     public virtual PuntosDeVenta IdPuntoVentaNavigation { get; set; } = null!;
 
     public virtual OperacionesTipo IdTipoNavigation { get; set; } = null!;
+
+    public virtual User? IdUsuarioActualizacionNavigation { get; set; }
 
     public virtual User IdUsuarioNavigation { get; set; } = null!;
 }

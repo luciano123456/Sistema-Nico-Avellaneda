@@ -34,6 +34,16 @@ function renderizarPuntosDeVenta(lista) {
 
 
 function seleccionarPunto(id) {
-    alert(`Punto de venta seleccionado: ${id}`);
-    // Podés guardar en sessionStorage o redirigir
+    // Obtener la sesión actual desde localStorage
+    const userSession = JSON.parse(localStorage.getItem("userSession"));
+
+    // Verificar que exista la sesión
+    if (userSession) {
+        userSession.IdPuntoVenta = id; // Agregar o actualizar el campo
+        localStorage.setItem("userSession", JSON.stringify(userSession));
+    }
+
+    // Redirigir
+    window.location.href = "/Operaciones/Index";
 }
+

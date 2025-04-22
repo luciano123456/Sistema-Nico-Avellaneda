@@ -1,0 +1,37 @@
+.is-invalid {
+    border-color: red !important;
+    box-shadow: 0 0 5px red;
+}
+
+
+.invalid-feedback {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875em;
+}
+
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+
+.alert-validacion {
+    background-color: rgba(240, 240, 240, 0.9); /* gris claro con transparencia */
+    border: 1px solid rgba(180, 180, 180, 0.7);
+    padding: 10px 15px;
+    border-radius: 8px;
+    color: #b30000;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+    box-shadow: 0 0 0px 1000px white inset !important;
+    caret-color: #000;
+    color: #000 !important;
+}
+
+
