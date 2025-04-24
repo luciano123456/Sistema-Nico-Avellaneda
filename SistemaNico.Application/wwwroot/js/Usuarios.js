@@ -259,19 +259,15 @@ async function configurarDataTable(data) {
                     searchable: false,
                 },
                 { data: 'Usuario' },
-                { data: 'Nombre' },
-                { data: 'Apellido' },
-                { data: 'Dni' },
-                { data: 'Telefono' },
-                { data: 'Direccion' },
-                { data: 'Rol' },
-                {
-                    data: 'Estado',
-                    render: function (data, type, row) {
-                        // Verificar si el estado es "Bloqueado" y aplicar el color rojo
-                        return data === "Bloqueado" ? `<span style="color: red">${data}</span>` : data;
-                    }
-                },
+                { data: 'PuntoDeVenta' },
+                { data: 'Fecha' },
+                { data: 'Tipo' },
+                { data: 'Moneda' },
+                { data: 'Cuenta' },
+                { data: 'Concepto' },
+                { data: 'Ingreso' },
+                { data: 'Egreso' },
+               
 
             ],
             dom: 'Bfrtip',

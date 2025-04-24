@@ -70,6 +70,18 @@ namespace SistemaNico.DAL.Repository
             return await Task.FromResult(query);
         }
 
+        public async Task<IQueryable<Cuenta>> ObtenerPorMonedaOperacion(int IdMoneda)
+        {
+            IQueryable<Cuenta> query = _dbcontext.Cuentas
+                .Where(x => x.IdMoneda == IdMoneda &&
+                            x.Activo == 1 &&
+                            !x.Nombre.ToUpper().Contains("TESORERIA"))
+                .OrderByDescending(p => p.Activo);
+
+            return await Task.FromResult(query);
+        }
+
+
         public async Task<IQueryable<Cuenta>> ObtenerActivos()
         {
             IQueryable<Cuenta> query = _dbcontext.Cuentas

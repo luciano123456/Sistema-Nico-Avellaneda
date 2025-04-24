@@ -37,6 +37,11 @@ namespace SistemaNico.BLL.Service
             return await _contactRepo.ObtenerPorMoneda(IdMoneda);
         }
 
+        public async Task<IQueryable<Cuenta>> ObtenerPorMonedaOperacion(int IdMoneda)
+        {
+            return await _contactRepo.ObtenerPorMonedaOperacion(IdMoneda);
+        }
+
         public async Task<IQueryable<Cuenta>> ObtenerTodos()
         {
             return await _contactRepo.ObtenerTodos();

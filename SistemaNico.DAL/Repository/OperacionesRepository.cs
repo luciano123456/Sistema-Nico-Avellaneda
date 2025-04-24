@@ -44,7 +44,8 @@ namespace SistemaNico.DAL.Repository
                 cajaEgreso.Concepto = model.NotaInterna;
                 cajaEgreso.Egreso = model.ImporteEgreso;
                 cajaEgreso.Ingreso = 0;
-
+                cajaEgreso.Tipo = "Operacion";
+                    
                 // Actualizar caja ingreso
                 cajaIngreso.Fecha = model.Fecha;
                 cajaIngreso.IdUsuario = model.IdUsuario;
@@ -55,6 +56,7 @@ namespace SistemaNico.DAL.Repository
                 cajaIngreso.Concepto = model.NotaInterna;
                 cajaIngreso.Ingreso = model.ImporteIngreso;
                 cajaIngreso.Egreso = 0;
+                cajaIngreso.Tipo = "Operacion";
 
                 // Actualizar operación
                 var operacion = await _dbcontext.Operaciones.FindAsync(model.Id);
@@ -139,7 +141,7 @@ namespace SistemaNico.DAL.Repository
                     IdPuntoVenta = model.IdPuntoVenta,
                     Fecha = model.Fecha,
                     IdTipo = model.IdTipo,
-                    Tipo = "Egreso",
+                    Tipo = "Operacion",
                     IdMoneda = model.IdMonedaEgreso,
                     IdCuenta = model.IdCuentaEgreso,
                     Concepto = model.NotaInterna,
@@ -158,7 +160,7 @@ namespace SistemaNico.DAL.Repository
                     IdPuntoVenta = model.IdPuntoVenta,
                     Fecha = model.Fecha,
                     IdTipo = model.IdTipo,
-                    Tipo = "Ingreso",
+                    Tipo = "Operacion",
                     IdMoneda = model.IdMonedaIngreso,
                     IdCuenta = model.IdCuentaIngreso,
                     Concepto = model.NotaInterna,

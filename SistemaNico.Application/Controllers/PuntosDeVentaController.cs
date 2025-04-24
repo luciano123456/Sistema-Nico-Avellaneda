@@ -20,7 +20,17 @@ namespace SistemaNico.Application.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            // Obtener el usuario actual desde la sesión usando el helper inyectado
+            var userSession = SessionHelper.GetUsuarioSesion(HttpContext);
+
+            if (userSession.Result.IdRol != 1)
+            {
+                return RedirectToAction("Index", "AccesoDenegado");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         public IActionResult Login()
