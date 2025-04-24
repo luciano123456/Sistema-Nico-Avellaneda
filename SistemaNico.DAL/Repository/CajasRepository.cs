@@ -139,7 +139,9 @@ namespace SistemaNico.DAL.Repository
             if (IdPuntoVenta != -1)
                 query = query.Where(x => x.IdPuntoVenta == IdPuntoVenta); // este solo es opcional
 
-            query = query.Where(x => x.IdMoneda == IdMoneda);
+            if (IdMoneda != -2)
+                query = query.Where(x => x.IdMoneda == IdMoneda);
+
             query = query.Where(x => x.IdCuenta == IdCuenta);
 
             return await query.ToListAsync();

@@ -37,12 +37,12 @@
             <option value="" selected>Punto de Venta</option>
         </select>
 
-         <label class="lblfiltro">Moneda</label>
+        <label class="lblfiltro">Moneda</label>
         <select id="MonedasFiltro" name="select" class="input-nuevo">
             <option value="" selected>Moneda</option>
         </select>
 
-        
+
         <label class="lblfiltro">Cuenta</label>
         <select id="CuentasFiltro" name="select" class="input-nuevo">
             <option value="" selected>Cuenta</option>
@@ -116,6 +116,11 @@
 
                     <!-- Botones -->
                     <div class="grupo-botones ">
+
+                        <button class="btn btn-danger" onclick="abrirModalExportarPdf()">
+                            <i class="fa fa-file-pdf-o"></i> Exportar PDF
+                        </button>
+
                         @* <button class="btn btn-success d-flex align-items-center px-3 py-2 text-center" onclick="verHistorial()">
                             <i class="fa fa-file-text-o"></i> Hist. transf. internas
                         </button> *@
@@ -128,11 +133,11 @@
                             <i class="fa fa-plus-square"></i> Nuevo mov.
                         </button>
 
-                        
+
                     </div>
                 </div>
 
-              
+
 
 
                 @* <div class="d-flex justify-content-end mt-2 mb-4">
@@ -144,10 +149,49 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalExportarPdf" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Exportar PDF por cuentas</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label>Rango de fechas</label>
+                    <div class="d-flex gap-2">
+                        <input type="date" class="form-control" id="fechaDesdePdf">
+                        <input type="date" class="form-control" id="fechaHastaPdf">
+                    </div>
+                </div>
+
+                <label>Cuentas</label>
+                <div class="mb-2">
+                    <label>
+                        <input type="checkbox" id="chkSeleccionarTodas" checked class="form-check-input me-2" />
+                        <span class="text-black">Seleccionar / Deseleccionar todas</span>
+                    </label>
+                </div>
+                <ul class="list-group" id="listaCuentasPdf"></ul>
+
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button class="btn btn-danger" onclick="exportarPdfSeleccion()">Exportar <i class="fa fa-file-pdf-o"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <!-- Modal Transferencia Interna -->
 <div class="modal fade" id="modalTransferencia" tabindex="-1" role="dialog" aria-labelledby="modalTransferenciaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-transferencia" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-transferencia" role="document">
         <div class="modal-content">
 
             <div class="modal-header bg-warning">
@@ -310,7 +354,7 @@
                     </div>
 
 
-                 
+
 
 
                     <!-- Validación -->
@@ -339,6 +383,10 @@
 
 @section Scripts {
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 @*SCRIPTS DE BOTONES*@
@@ -364,6 +412,6 @@
     <script src="https://cdn.datatables.net/fixedheader/3.2.2/js/dataTables.fixedHeader.min.js"></script>
 
 
-    <script src="~/js/Cajas.js?v=1.0"></script>
+    <script src="~/js/Cajas.js?v=1.1"></script>
 
 }

@@ -49,7 +49,7 @@ namespace SistemaNico.Application.Controllers
                
             }).ToList();
 
-            if (IdMoneda > 0 && IdCuenta > 0)
+            if (IdMoneda > 0 && (IdCuenta > 0 || IdCuenta == -2))
             {
                 var fechaMinima = new DateTime(2000, 1, 1);
                 decimal saldoAnterior = 0;
@@ -87,6 +87,81 @@ namespace SistemaNico.Application.Controllers
 
 
             return Ok(lista);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ExportarPdfCliente([FromBody] VMExportacionCajas filtro)
+        {
+            var resultadoFinal = new List<VMCajas>();
+
+            foreach (int idCuenta in filtro.IdCuentas)
+            {
+                var movimientos = await _CajasService.ObtenerTodos(
+                    filtro.FechaDesde,
+                    filtro.FechaHasta,
+                    -1, // IdPuntoVenta opcional
+                    0,  // IdMoneda opcional
+                    idCuenta
+                );
+
+                var lista = movimientos.Select(c => new VMCajas
+                {
+                    Id = c.Id,
+                    Concepto = c.Concepto,
+                    Moneda = c.IdMonedaNavigation?.Nombre,
+                    Usuario = c.IdUsuarioNavigation?.Nombre,
+                    PuntoDeVenta = c.IdPuntoVentaNavigation?.Nombre,
+                    Tipo = c.Tipo,
+                    Cuenta = c.IdCuentaNavigation?.Nombre,
+                    Egreso = c.Egreso,
+                    Fecha = c.Fecha,
+                    IdCuenta = c.IdCuenta,
+                    IdMoneda = c.IdMoneda,
+                    IdPuntoVenta = c.IdPuntoVenta,
+                    Ingreso = c.Ingreso,
+                    IdUsuario = c.IdUsuario,
+                    IdTipo = c.IdTipo
+                }).ToList();
+
+                // Buscar saldo anterior si corresponde
+                if (lista.Any())
+                {
+                    var fechaMinima = new DateTime(2000, 1, 1);
+                    var movimientosPrevios = await _CajasService.ObtenerTodos(
+                        fechaMinima,
+                        filtro.FechaDesde.AddDays(-1),
+                        -1,
+                        0,
+                        idCuenta
+                    );
+
+                    decimal saldoAnterior = (decimal)movimientosPrevios.Sum(x => x.Ingreso - x.Egreso);
+
+                    lista.Insert(0, new VMCajas
+                    {
+                        Fecha = null,
+                        Concepto = "",
+                        Tipo = $"Saldo anterior al {filtro.FechaDesde:dd/MM/yyyy}",
+                        Ingreso = 0,
+                        Egreso = 0,
+                        Id = -1,
+                        Cuenta = lista[0].Cuenta,
+                        Usuario = "",
+                        PuntoDeVenta = "",
+                        Moneda = lista[0].Moneda,
+                        IdCuenta = idCuenta,
+                        IdMoneda = lista[0].IdMoneda,
+                        IdPuntoVenta = lista[0].IdPuntoVenta,
+                        IdUsuario = 0,
+                        IdTipo = 0,
+                        SaldoAnterior = saldoAnterior
+                    });
+                }
+
+                resultadoFinal.AddRange(lista);
+            }
+
+            return Ok(resultadoFinal);
         }
 
 
