@@ -1274,3 +1274,187 @@ async function cargarCuentasFiltro(moneda) {
         select.appendChild(option);
     }
 }
+
+
+async function abrirModalExportarPdf() {
+    const hoy = moment().format("YYYY-MM-DD");
+    document.getElementById("fechaDesdePdf").value = hoy;
+    document.getElementById("fechaHastaPdf").value = hoy;
+
+    const response = await fetch("/Cuentas/Lista");
+    const cuentas = await response.json();
+
+    const contenedor = document.getElementById("listaCuentasPdf");
+    contenedor.innerHTML = "";
+
+    if (!cuentas || cuentas.length === 0) {
+        contenedor.innerHTML = `<li class="list-group-item text-danger">No hay cuentas disponibles.</li>`;
+        return;
+    }
+
+    cuentas.forEach(cuenta => {
+        contenedor.innerHTML += `
+        <li class="list-group-item d-flex align-items-center text-black">
+            <input class="form-check-input me-2" type="checkbox" checked value="${cuenta.Id}" id="chkCuenta${cuenta.Id}">
+            <label class="form-check-label ms-2 text-black" for="chkCuenta${cuenta.Id}">
+                ${cuenta.Nombre}
+            </label>
+        </li>
+    `;
+    });
+
+
+    $('#modalExportarPdf').modal('show');
+}
+
+document.getElementById("chkSeleccionarTodas").addEventListener("change", function () {
+    const checkboxes = document.querySelectorAll("#listaCuentasPdf input[type='checkbox']");
+    checkboxes.forEach(cb => cb.checked = this.checked);
+});
+
+async function exportarPdfSeleccion() {
+    const fechaDesde = document.getElementById("fechaDesdePdf").value;
+    const fechaHasta = document.getElementById("fechaHastaPdf").value;
+
+    const checkboxes = document.querySelectorAll("#listaCuentasPdf input[type='checkbox']:checked");
+    const cuentasSeleccionadas = Array.from(checkboxes).map(el => el.value);
+
+    if (cuentasSeleccionadas.length === 0) {
+        errorModal("Debe seleccionar al menos una cuenta.");
+        return;
+    }
+
+    const doc = new jspdf.jsPDF();
+
+    let totalGlobalIngreso = 0;
+    let totalGlobalEgreso = 0;
+    let totalGlobalSaldo = 0;
+
+    for (let idCuenta of cuentasSeleccionadas) {
+        const response = await fetch(`/Cajas/Lista?FechaDesde=${fechaDesde}&FechaHasta=${fechaHasta}&IdPuntoVenta=-1&IdMoneda=-2&IdCuenta=${idCuenta}`);
+        const movimientos = await response.json();
+
+        if (!movimientos || movimientos.length === 0) continue;
+
+        const nombreCuenta = movimientos[0].Cuenta || "Cuenta desconocida";
+
+        let ingresoTotal = 0;
+        let egresoTotal = 0;
+        let saldoAcumulado = 0;
+
+        // Definir posición del título
+        let startY = 20;
+
+        if (doc.lastAutoTable) {
+            startY = doc.lastAutoTable.finalY + 15;
+            const espacioDisponible = doc.internal.pageSize.height - startY;
+            const alturaEstimadaTabla = 100;
+
+            if (espacioDisponible < alturaEstimadaTabla) {
+                doc.addPage();
+                startY = 20;
+            }
+        }
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(0, 128, 0);
+        doc.text(`Cuenta: ${nombreCuenta}`, 14, startY);
+        doc.setTextColor(0, 0, 0);
+
+        const body = [];
+
+        // Mostrar saldo anterior si existe
+        if (movimientos[0].SaldoAnterior !== undefined) {
+            saldoAcumulado = parseFloat(movimientos[0].SaldoAnterior) || 0;
+
+            body.push([
+                "",
+                "",
+                {
+                    content: `Saldo anterior al ${fechaDesde}`,
+                    styles: {
+                        textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34],
+                        fontStyle: 'bold'
+                    }
+                },
+                "",
+                "",
+                {
+                    content: formatNumber(saldoAcumulado),
+                    styles: {
+                        textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34],
+                        fontStyle: 'bold'
+                    }
+                }
+            ]);
+
+        }
+
+        for (const mov of movimientos) {
+            const ingreso = parseFloat(mov.Ingreso) || 0;
+            const egreso = parseFloat(mov.Egreso) || 0;
+
+            ingresoTotal += ingreso;
+            egresoTotal += egreso;
+            saldoAcumulado += ingreso - egreso;
+
+            body.push([
+                mov.Fecha ? moment(mov.Fecha).format("DD/MM/YYYY HH:mm") : "",
+                mov.Concepto,
+                mov.Tipo,
+                ingreso > 0 ? formatNumber(ingreso) : "",
+                egreso > 0 ? formatNumber(egreso) : "",
+                {
+                    content: formatNumber(saldoAcumulado),
+                    styles: {
+                        textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34]
+                    }
+                }
+            ]);
+        }
+
+        // Footer totales
+        body.push([
+            { content: "Totales", colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
+            formatNumber(ingresoTotal),
+            formatNumber(egresoTotal),
+            ""
+        ]);
+
+        body.push([
+            { content: "Saldo Final", colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
+            {
+                content: formatNumber(saldoAcumulado),
+                styles: {
+                    textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34],
+                    fontStyle: 'bold'
+                }
+            }
+        ]);
+
+        doc.autoTable({
+            head: [["Fecha", "Concepto", "Tipo", "Ingreso", "Egreso", "Saldo"]],
+            body: body,
+            startY: startY + 5,
+            theme: "grid",
+            styles: {
+                lineColor: [0, 128, 0],
+                textColor: [0, 0, 0]
+            },
+            headStyles: {
+                fillColor: [0, 128, 0],
+                textColor: 255,
+                fontStyle: "bold"
+            }
+        });
+
+    }
+
+ 
+
+    doc.save(`Cajas_${fechaDesde}_a_${fechaHasta}.pdf`);
+    $('#modalExportarPdf').modal('hide');
+    exitoModal("PDF generado correctamente");
+}
+

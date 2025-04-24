@@ -13,6 +13,8 @@ const columnConfig = [
     { index: 9, filterType: 'text' },
     { index: 10, filterType: 'text' },
     { index: 11, filterType: 'text' },
+    { index: 12, filterType: 'text' },
+    { index: 13, filterType: 'text' },
 ];
 
 
@@ -666,11 +668,15 @@ async function configurarDataTable(data) {
                 { data: 'PuntoDeVenta' },
                 { data: 'Tipo' },
                 { data: 'Cotizacion' },
+                { data: 'MonedaIngreso' },
                 { data: 'CuentaIngreso' },
                 { data: 'ImporteIngreso' },
+                { data: 'MonedaEgreso' },
                 { data: 'CuentaEgreso' },
                 { data: 'ImporteEgreso' },
                 { data: 'NotaInterna' },
+                
+                
 
 
             ],
@@ -682,7 +688,7 @@ async function configurarDataTable(data) {
                     filename: 'Reporte Operaciones',
                     title: '',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [1, 4, 5, 6, 7, 9, 10, 12]
                     },
                     className: 'btn-exportar-excel',
                 },
@@ -692,7 +698,7 @@ async function configurarDataTable(data) {
                     filename: 'Reporte Operaciones',
                     title: '',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [1,4,5, 6,7,9,10,12]
                     },
                     className: 'btn-exportar-pdf',
                 },
@@ -715,7 +721,7 @@ async function configurarDataTable(data) {
                     "render": function (data, type, row) {
                         return formatNumber(data); // Formatear números
                     },
-                    "targets": [6, 8, 10] // Índices de las columnas de números
+                    "targets": [6, 9, 12] // Índices de las columnas de números
                 },
                 {
                     "render": function (data, type, row) {

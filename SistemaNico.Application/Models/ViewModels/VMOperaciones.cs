@@ -44,6 +44,8 @@ namespace SistemaNico.Application.Models.ViewModels
         public string? CuentaIngreso { get; set; }
         public string? CuentaEgreso { get; set; }
         public string? PuntoDeVenta { get; set; }
+        public string? MonedaIngreso { get; set; }
+        public string? MonedaEgreso { get; set; }
 
 
         public virtual Caja IdCajaAsociadoNavigation { get; set; } = null!;

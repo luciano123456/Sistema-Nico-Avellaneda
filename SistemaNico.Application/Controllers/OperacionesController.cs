@@ -53,7 +53,9 @@ namespace SistemaNico.Application.Controllers
                 Tipo = c.IdTipoNavigation.Nombre != null ? c.IdTipoNavigation.Nombre : "",
                 CuentaIngreso = c.IdCuentaIngresoNavigation != null ? c.IdCuentaIngresoNavigation.Nombre : "",
                 CuentaEgreso = c.IdCuentaEgresoNavigation.Nombre != null ? c.IdCuentaEgresoNavigation.Nombre : "",
-                PuntoDeVenta = c.IdPuntoVentaNavigation.Nombre != null ? c.IdPuntoVentaNavigation.Nombre : ""
+                PuntoDeVenta = c.IdPuntoVentaNavigation.Nombre != null ? c.IdPuntoVentaNavigation.Nombre : "",
+                MonedaEgreso = c.IdMonedaEgresoNavigation.Nombre != null ? c.IdMonedaEgresoNavigation.Nombre : "",
+                MonedaIngreso = c.IdMonedaIngresoNavigation.Nombre != null ? c.IdMonedaIngresoNavigation.Nombre : ""
             }).ToList();
 
             return Ok(lista);
