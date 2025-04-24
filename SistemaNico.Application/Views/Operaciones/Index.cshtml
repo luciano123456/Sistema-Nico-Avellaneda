@@ -15,7 +15,7 @@
     <link href="https://cdn.datatables.net/fixedheader/3.2.2/css/fixedHeader.dataTables.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="~/css/operaciones.css" rel="stylesheet" />
+    <link href="~/css/operaciones.css?v=1.0" rel="stylesheet" />
 
 }
 
@@ -102,6 +102,190 @@
 
 
 <!-- Modal Cotización -->
+<!-- Modal Cotización -->
+<div class="modal fade" id="modalCotizacion" tabindex="-1" role="dialog" aria-labelledby="modalCotizacionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modalCotizacion" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold" id="modalCotizacionLabel">Datos de operación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <form id="formCotizacion" class="row g-3">
+
+                        <input type="text" class="form-control" id="txtId" hidden>
+                        <input type="text" class="form-control" id="txtIdCajaIngreso" hidden>
+                        <input type="text" class="form-control" id="txtIdCajaEgreso" hidden>
+
+                        <!-- Fila 1 -->
+                        <div class="col-6 col-sm-4 col-md-3">
+                            <label for="txtFecha" class="form-label text-black">Fecha</label>
+                            <input type="datetime-local" class="form-control" id="txtFecha">
+                            <div class="invalid-feedback">Campo obligatorio</div>
+                        </div>
+
+                        <div class="col-6 col-sm-4 col-md-3">
+                            <label for="cbPuntoVenta" class="form-label text-black">Punto de Venta</label>
+                            <select id="cbPuntoVenta" class="form-select">
+                                <option selected disabled>Seleccionar</option>
+                            </select>
+                            <div class="invalid-feedback">Campo obligatorio</div>
+                        </div>
+
+                        <div class="col-6 col-sm-4 col-md-3">
+                            <label for="cbTipoOperacion" class="form-label text-black">Tipo operación</label>
+                            <select id="cbTipoOperacion" class="form-select">
+                                <option selected disabled>Seleccionar</option>
+                            </select>
+                            <div class="invalid-feedback">Campo obligatorio</div>
+                        </div>
+
+                        <div class="col-6 col-sm-4 col-md-3">
+                            <label for="txtCliente" class="form-label text-black">Nombre cliente</label>
+                            <input type="text" class="form-control" id="txtCliente">
+                        </div>
+
+                        <!-- COMPRA -->
+                        <div id="divCompra" hidden class="row g-3">
+                            <div class="col-6 col-sm-4 col-md-4">
+                                <label for="cbMonedaIngresa_Compra" class="form-label text-black">
+                                    <i class="fa fa-arrow-right text-success me-1"></i> Moneda Entra
+                                </label>
+                                <select id="cbMonedaIngresa_Compra" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4" hidden>
+                                <label for="cbCuentaIngresa_Compra" class="form-label text-black">Cuenta</label>
+                                <select id="cbCuentaIngresa_Compra" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4">
+                                <label for="txtImporteIngresa_Compra" class="form-label text-black">Importe</label>
+                                <input type="text" class="form-control" id="txtImporteIngresa_Compra" step="0.01">
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4">
+                                <label for="txtCotizacionCompra" class="form-label text-black">Cotización</label>
+                                <input type="text" class="form-control" id="txtCotizacionCompra" step="0.01">
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-6">
+                                <label for="cbMonedaEgresa_Compra" class="form-label text-black">
+                                    <i class="fa fa-arrow-left text-danger me-1"></i> Moneda Sale
+                                </label>
+                                <select id="cbMonedaEgresa_Compra" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4" hidden>
+                                <label for="cbCuentaEgresa_Compra" class="form-label text-black">Cuenta</label>
+                                <select id="cbCuentaEgresa_Compra" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-6">
+                                <label for="txtImporteEgresa_Compra" class="form-label text-black">Importe</label>
+                                <input type="text" class="form-control" id="txtImporteEgresa_Compra" step="0.01">
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+                        </div>
+
+                        <!-- VENTA -->
+                        <div id="divVenta" hidden class="row g-3">
+                            <div class="col-6 col-sm-4 col-md-4">
+                                <label for="cbMonedaEgresa_Venta" class="form-label text-black">
+                                    <i class="fa fa-arrow-left text-danger me-1"></i> Moneda Sale
+                                </label>
+                                <select id="cbMonedaEgresa_Venta" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-3" hidden>
+                                <label for="cbCuentaEgresa_Venta" class="form-label text-black">Cuenta</label>
+                                <select id="cbCuentaEgresa_Venta" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4">
+                                <label for="txtImporteEgresa_Venta" class="form-label text-black">Importe</label>
+                                <input type="text" class="form-control" id="txtImporteEgresa_Venta" step="0.01">
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4">
+                                <label for="txtCotizacionVenta" class="form-label text-black">Cotización</label>
+                                <input type="text" class="form-control" id="txtCotizacionVenta" step="0.01">
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-6">
+                                <label for="cbMonedaIngresa_Venta" class="form-label text-black">
+                                    <i class="fa fa-arrow-right text-success me-1"></i> Moneda Entra
+                                </label>
+                                <select id="cbMonedaIngresa_Venta" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-4" hidden>
+                                <label for="cbCuentaIngresa_Venta" class="form-label text-black">Cuenta</label>
+                                <select id="cbCuentaIngresa_Venta" class="form-select">
+                                    <option selected disabled>Seleccionar</option>
+                                </select>
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-6">
+                                <label for="txtImporteIngresa_Venta" class="form-label text-black">Importe</label>
+                                <input type="text" class="form-control" id="txtImporteIngresa_Venta" step="0.01">
+                                <div class="invalid-feedback">Campo obligatorio</div>
+                            </div>
+                        </div>
+
+                        <div id="errorCampos" class="alert-validacion d-none">
+                            Debes completar los campos requeridos
+                        </div>
+
+                        <div id="divModificacion" hidden>
+                            <label id="lblModificacion" class="text-danger"></label>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnRegistrarGuardar" onclick="guardarOperacion()">Registrar</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* 
+
+<!-- Modal Cotización -->
 <div class="modal fade" id="modalCotizacion" tabindex="-1" role="dialog" aria-labelledby="modalCotizacionLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -138,15 +322,14 @@
                     </div>
 
                     <!-- Fila 2 -->
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="txtCotizacion" class="form-label text-black">Cotización</label>
                         <input type="text" class="form-control" id="txtCotizacion" step="0.01">
                         <div class="invalid-feedback">Campo obligatorio</div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <label for="txtCliente" class="form-label text-black">Nombre cliente</label>
                         <input type="text" class="form-control" id="txtCliente">
-                        <div class="invalid-feedback">Campo obligatorio</div>
 
                     </div>
 
@@ -155,27 +338,31 @@
                     <!-- Egreso -->
                     <div class="col-12 fw-bold text-warning">Datos de Egreso</div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cbMonedaEgreso" class="form-label text-black">Moneda</label>
                         <select id="cbMonedaEgreso" class="form-select">
                             <option selected disabled>Seleccionar</option>
                         </select>
                         <div class="invalid-feedback">Campo obligatorio</div>
-
                     </div>
-                    <div class="col-md-4">
+                   
+
+                    <div class="col-md-3">
                         <label for="cbCuentaEgreso" class="form-label text-black">Cuenta</label>
                         <select id="cbCuentaEgreso" class="form-select">
                             <option selected disabled>Seleccionar</option>
                         </select>
                         <div class="invalid-feedback">Campo obligatorio</div>
-
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="txtImporteEgreso" class="form-label text-black">Importe</label>
                         <input type="text" class="form-control" id="txtImporteEgreso" step="0.01">
                         <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
 
+                    <div class="col-md-3" id="grpImporteARSEgreso">
+                        <label for="txtImporteARSEgreso" class="form-label text-black">Importe en ARS</label>
+                        <input type="text" class="form-control" id="txtImporteARSEgreso" step="0.01">
                     </div>
 
                     <hr class="mt-4">
@@ -183,7 +370,7 @@
                     <!-- Ingreso -->
                     <div class="col-12 fw-bold text-warning">Datos de Ingreso</div>
 
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="cbMonedaIngreso" class="form-label text-black">Moneda</label>
                         <select id="cbMonedaIngreso" class="form-select">
                             <option selected disabled>Seleccionar</option>
@@ -191,7 +378,8 @@
                         <div class="invalid-feedback">Campo obligatorio</div>
 
                     </div>
-                    <div class="col-md-4">
+
+                    <div class="col-md-3">
                         <label for="cbCuentaIngreso" class="form-label text-black">Cuenta</label>
                         <select id="cbCuentaIngreso" class="form-select">
                             <option selected disabled>Seleccionar</option>
@@ -199,11 +387,17 @@
                         <div class="invalid-feedback">Campo obligatorio</div>
 
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="txtImporteIngreso" class="form-label text-black">Importe</label>
                         <input type="text" class="form-control" id="txtImporteIngreso" step="0.01">
                         <div class="invalid-feedback">Campo obligatorio</div>
                     </div>
+
+                    <div class="col-md-3" id="grpImporteARSIngreso">
+                        <label for="txtImporteARSIngreso" class="form-label text-black">Importe en ARS</label>
+                        <input type="text" class="form-control" id="txtImporteARSIngreso" step="0.01">
+                    </div>
+
                     <div class="col-md-12">
                         <label for="txtNota" class="form-label text-black">Nota</label>
                         <input type="text" class="form-control" id="txtNota">
@@ -229,7 +423,7 @@
         </div>
     </div>
 </div>
-
+ *@
 
 <!-- Modal -->
 <div class="modal fade" id="modalPrecios" tabindex="-1" aria-labelledby="modalPreciosLabel" aria-hidden="true">
@@ -291,6 +485,6 @@
     <script src="https://cdn.datatables.net/fixedheader/3.2.2/js/dataTables.fixedHeader.min.js"></script>
 
 
-    <script src="~/js/Operaciones.js"></script>
+    <script src="~/js/Operaciones.js?v=1.0"></script>
    
 }

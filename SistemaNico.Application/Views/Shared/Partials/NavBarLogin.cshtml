@@ -9,7 +9,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
+                <li class="nav-item" id="seccionOperaciones" hidden>
                     <a class="nav-link" href="@Url.Action("Index", "Operaciones")">Operaciones</a>
                 </li>
                 <li class="nav-item" id="seccionPuntosDeVenta" hidden>
@@ -17,6 +17,9 @@
                 </li>
                 <li class="nav-item" id="seccionCuentas" hidden>
                     <a class="nav-link" href="@Url.Action("Index", "Cuentas")">Cuentas</a>
+                </li>
+                <li class="nav-item" id="seccionCajas" hidden>
+                    <a class="nav-link" href="@Url.Action("Index", "Cajas")">Cajas</a>
                 </li>
                 <li class="nav-item dropdown" id="seccionConfiguraciones" hidden>
                     <a class="nav-link dropdown-toggle" href="#" id="configDropdownLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">

@@ -1,0 +1,369 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+
+@*GOOGLEAR CARD BOOTSTRAP 5*@
+@section Estilos {
+
+    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+
+@*ESTILOS DE BOTONES*@
+    <link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+
+@*filter columns*@
+    <link href="https://cdn.datatables.net/fixedheader/3.2.2/css/fixedHeader.dataTables.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="~/css/Cajas.css?v=1.0" rel="stylesheet" />
+
+}
+
+
+<div class="container-fluid mt-5">
+
+    <div id="Filtros" class="divFiltros" hidden>
+
+        <label for="txtFechaDesde" class="lblfiltro">Fecha Desde</label>
+        <input type="date" class="input-nuevo" id="txtFechaDesde">
+
+        <label for="txtFechaHasta" class="lblfiltro">Fecha Hasta</label>
+        <input type="date" class="input-nuevo" id="txtFechaHasta">
+
+        <br />
+
+        <label class="lblfiltro">Punto de Venta</label>
+        <select id="PuntosDeVentaFiltro" name="select" class="input-nuevo">
+            <option value="" selected>Punto de Venta</option>
+        </select>
+
+         <label class="lblfiltro">Moneda</label>
+        <select id="MonedasFiltro" name="select" class="input-nuevo">
+            <option value="" selected>Moneda</option>
+        </select>
+
+        
+        <label class="lblfiltro">Cuenta</label>
+        <select id="CuentasFiltro" name="select" class="input-nuevo">
+            <option value="" selected>Cuenta</option>
+        </select>
+
+
+        <div class="vw-75 d-flex float-lg-end mt-2">
+            <a class="btn btn-success" id="aplicarFiltros" onclick="aplicarFiltros()">Aplicar</a>
+        </div>
+
+    </div>
+
+
+    <div class="row mt-5">
+        <div class="col-lg-10">
+            <div class="card" style="width: 88%; position: absolute; left: 7vw; border: none;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Cajas</span>
+
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle d-flex align-items-center" type="button" id="dropdownColumnas" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-cog me-2"></i> Config. Columnas
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownColumnas" id="configColumnasMenu">
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="display nowrap" id="grd_Cajas" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Usuario</th>
+                                <th>Punto de Venta</th>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Moneda</th>
+                                <th>Cuenta</th>
+                                <th>Ingreso</th>
+                                <th>Egreso</th>
+                                <th>Saldo</th>
+                                <th>Concepto</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Aquí va el contenido de tu datatable -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="totales-botones-container mb-4">
+
+                    <!-- Sumas -->
+                    <div class="grupo-totales">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold">Suma de ingresos</label>
+                            <input type="text" class="form-control form-control-sm text-start" id="txtTotalIngreso" readonly>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold">Suma de egresos</label>
+                            <input type="text" class="form-control form-control-sm text-start" id="txtTotalEgreso" readonly>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold">Saldo</label>
+                            <input type="text" class="form-control form-control-sm text-start" id="txtTotalSaldo" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="grupo-botones ">
+                        @* <button class="btn btn-success d-flex align-items-center px-3 py-2 text-center" onclick="verHistorial()">
+                            <i class="fa fa-file-text-o"></i> Hist. transf. internas
+                        </button> *@
+
+                        <button class="btn btn-success d-flex align-items-center px-3 py-2 text-center" onclick="nuevaTransferencia()">
+                            <i class="fa fa-exchange"></i> Nueva transf. interna
+                        </button>
+
+                        <button class="btn btn-success d-flex align-items-center px-3 py-2 text-center" onclick="nuevoMovimiento()">
+                            <i class="fa fa-plus-square"></i> Nuevo mov.
+                        </button>
+
+                        
+                    </div>
+                </div>
+
+              
+
+
+                @* <div class="d-flex justify-content-end mt-2 mb-4">
+                    <a class="btn btn-primary btnnuevo" onclick="nuevoCaja()">Nuevo</a>
+                </div> *@
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Transferencia Interna -->
+<div class="modal fade" id="modalTransferencia" tabindex="-1" role="dialog" aria-labelledby="modalTransferenciaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-transferencia" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold" id="modalTransferenciaLabel">Nueva transferencia interna</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formTransferencia" class="row g-3">
+                    <!-- Fila 1 -->
+                    <div class="col-md-6">
+                        <label for="txtFecha" class="form-label text-black">Fecha</label>
+                        <input type="datetime-local" class="form-control" id="txtFecha">
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cbPuntoDeVenta" class="form-label text-black">Punto de Venta</label>
+                        <select id="cbPuntoDeVenta" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cbMoneda" class="form-label text-black">Moneda</label>
+                        <select id="cbMoneda" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="txtImporte" class="form-label text-black">Importe</label>
+                        <input type="text" class="form-control" id="txtImporte">
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+
+                    <!-- Concepto -->
+                    <div class="col-md-12">
+                        <label for="txtConcepto" class="form-label text-black">Concepto</label>
+                        <input type="text" class="form-control" id="txtConcepto">
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <!-- Cuentas -->
+                    <div class="col-md-6">
+                        <label for="cbCuentaDesde" class="form-label text-black">Cuenta desde</label>
+                        <select id="cbCuentaDesde" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cbCuentaHasta" class="form-label text-black">Cuenta hasta</label>
+                        <select id="cbCuentaHasta" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <!-- Notas -->
+                    <div class="col-md-12">
+                        <label for="txtNota" class="form-label text-black">Notas</label>
+                        <textarea class="form-control" id="txtNota" rows="3"></textarea>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <!-- Validación -->
+                    <div id="errorCampos" class="alert alert-danger d-none">
+                        Debes completar los campos obligatorios.
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-arrow-left"></i> Volver
+                </button>
+                <button type="button" class="btn btn-primary" onclick="guardarTransferencia()">
+                    <i class="fa fa-check"></i> Registrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalMovimiento" tabindex="-1" role="dialog" aria-labelledby="modalMovimientoaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-transferencia" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold" id="modalMovimientoLabel">Nuevo Movimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="formMovimiento" class="row g-3">
+
+                    <input type="text" class="form-control" id="txtIdMovimiento" hidden>
+
+                    <!-- Fila 1 -->
+                    <div class="col-md-6">
+                        <label for="txtFechaMovimiento" class="form-label text-black">Fecha</label>
+                        <input type="datetime-local" class="form-control" id="txtFechaMovimiento">
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cbTipoMovimiento" class="form-label text-black">Tipo de Movimiento</label>
+                        <select id="cbTipoMovimiento" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                            <option value="1">Ingreso</option>
+                            <option value="2">Egreso</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label for="cbPuntoDeVentaMovimiento" class="form-label text-black">Punto de Venta</label>
+                        <select id="cbPuntoDeVentaMovimiento" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <!-- Concepto -->
+                    <div class="col-md-6">
+                        <label for="txtConceptoMovimiento" class="form-label text-black">Concepto</label>
+                        <input type="text" class="form-control" id="txtConceptoMovimiento">
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+
+                    <div class="col-md-6">
+                        <label for="cbMonedaMovimiento" class="form-label text-black">Moneda</label>
+                        <select id="cbMonedaMovimiento" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="cbCuentaMovimiento" class="form-label text-black">Cuenta</label>
+                        <select id="cbCuentaMovimiento" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label for="txtImporteMovimiento" class="form-label text-black">Importe</label>
+                        <input type="text" class="form-control" id="txtImporteMovimiento">
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+
+                 
+
+
+                    <!-- Validación -->
+                    <div id="errorCampos" class="alert alert-danger d-none">
+                        Debes completar los campos obligatorios.
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa fa-arrow-left"></i> Volver
+                </button>
+                <button type="button" id="btnRegistrarMovimiento" class="btn btn-primary" onclick="guardarMovimiento()">
+                    <i class="fa fa-check"></i> Registrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+<partial name="~/Views/Utils/Modals.cshtml" />
+
+@section Scripts {
+
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+@*SCRIPTS DE BOTONES*@
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js">
+
+    </script><script src="~/js/site.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment-timezone@0.5.43/builds/moment-timezone-with-data.min.js"></script>
+
+@*excel*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+
+@*pdf*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+@*imprimir*@
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+
+@*filter columns*@
+    <script src="https://cdn.datatables.net/fixedheader/3.2.2/js/dataTables.fixedHeader.min.js"></script>
+
+
+    <script src="~/js/Cajas.js?v=1.0"></script>
+
+}

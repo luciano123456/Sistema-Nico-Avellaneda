@@ -4,6 +4,11 @@
 }
 
 
+.modalCotizacion {
+    max-width: 1100px; /* o lo que necesites */
+}
+
+
 .invalid-feedback {
     display: none;
     color: #dc3545;

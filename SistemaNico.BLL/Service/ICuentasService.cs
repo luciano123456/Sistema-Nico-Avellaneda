@@ -12,6 +12,7 @@ namespace SistemaNico.BLL.Service
         Task<IQueryable<Cuenta>> ObtenerActivos();
         Task<IQueryable<Cuenta>> ObtenerTodos();
         Task<IQueryable<Cuenta>> ObtenerPorMoneda(int IdMoneda);
+        Task<IQueryable<Cuenta>> ObtenerPorMonedaOperacion(int IdMoneda);
     }
 
 }

@@ -98,7 +98,7 @@ namespace SistemaNico.Application.Controllers
                 NotaInterna = model.NotaInterna,
                 ImporteIngreso = model.ImporteIngreso,
                 ImporteEgreso = model.ImporteEgreso,
-                Cliente = model.Cliente
+                Cliente = model.Cliente,
             };
 
             bool respuesta = await _OperacionesService.Insertar(Rol);

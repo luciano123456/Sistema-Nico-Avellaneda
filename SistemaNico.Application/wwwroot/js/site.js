@@ -53,6 +53,35 @@ function advertenciaModal(texto) {
     mostrarModalConContador('AdvertenciaModal', texto, 3000);
 }
 
+function aplicarFormatoMoneda(input, callback) {
+    input.addEventListener("blur", function () {
+        let rawValue = this.value.trim();
+
+        // Eliminar cualquier símbolo no numérico, excepto , y .
+        rawValue = rawValue.replace(/[^\d.,-]/g, '');
+
+        // Reemplazar separadores (puntos por nada, comas por punto)
+        let parsedValue = parseFloat(rawValue.replace(/\./g, '').replace(',', '.'));
+
+        // Validamos valor antes de formatear
+        if (!isNaN(parsedValue)) {
+            this.value = formatNumber(parsedValue);
+        }
+
+        // Callback opcional
+        if (typeof callback === 'function') {
+            callback();
+        }
+    });
+
+    input.addEventListener("focus", function () {
+        let cleanValue = this.value.replace(/[^\d.,-]/g, '');
+        let parsed = parseFloat(cleanValue.replace(/\./g, '').replace(',', '.'));
+        this.value = isNaN(parsed) ? "" : parsed;
+    });
+}
+
+
 const formatoMoneda = new Intl.NumberFormat('es-AR', {
     style: 'currency',
     currency: 'ARS', // Cambia "ARS" por el código de moneda que necesites

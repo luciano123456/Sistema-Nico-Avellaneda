@@ -20,7 +20,16 @@ namespace SistemaNico.Application.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var userSession = SessionHelper.GetUsuarioSesion(HttpContext);
+
+            if (userSession.Result.IdRol != 1)
+            {
+                return RedirectToAction("Index", "AccesoDenegado");
+            }
+            else
+            {
+                return View();
+            }
         }
 
         public IActionResult Login()
@@ -61,6 +70,23 @@ namespace SistemaNico.Application.Controllers
 
             return Ok(lista);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ListaPorMonedaOperacion(int IdMoneda)
+        {
+            var Roles = await _CuentasService.ObtenerPorMonedaOperacion(IdMoneda);
+
+            var lista = Roles.Select(c => new VMCuentas
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                Activo = (int)c.Activo,
+                IdMoneda = c.IdMoneda
+            }).ToList();
+
+            return Ok(lista);
+        }
+
 
 
         [HttpGet]

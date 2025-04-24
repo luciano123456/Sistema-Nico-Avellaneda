@@ -16,216 +16,236 @@ const columnConfig = [
 ];
 
 
-$(document).ready(() => {
-
+$(document).ready(async () => {
     userSession = JSON.parse(localStorage.getItem('userSession'));
 
+    // Fechas por defecto
     document.getElementById("txtFechaDesde").value = moment().format('YYYY-MM-DD');
     document.getElementById("txtFechaHasta").value = moment().format('YYYY-MM-DD');
 
+    // Filtros visibles solo para admin
     if (userSession.IdRol == 1) {
         document.getElementById("Filtros").removeAttribute("hidden");
-        listaUsuariosFiltro();
-        listaPuntosDeVentaFiltro();
-        listaTiposFiltro();
-        listaOperaciones(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, -1, -1, -1);
-
+        await listaUsuariosFiltro();
+        await listaPuntosDeVentaFiltro();
+        await listaTiposFiltro();
+        await listaOperaciones(
+            document.getElementById("txtFechaDesde").value,
+            document.getElementById("txtFechaHasta").value,
+            -1, -1, -1
+        );
     } else {
-        listaOperaciones(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, -1, userSession.IdPuntoVenta, userSession.Id);
+        await listaOperaciones(
+            document.getElementById("txtFechaDesde").value,
+            document.getElementById("txtFechaHasta").value,
+            -1,
+            userSession.IdPuntoVenta,
+            userSession.Id
+        );
     }
 
-
-
-
-
-
-
-
-
-
+    // Desactivar autocomplete y asociar validación individual
     document.querySelectorAll("#formCotizacion input, #formCotizacion select").forEach(el => {
         el.setAttribute("autocomplete", "off");
-    });
 
-    document.querySelectorAll("input, select").forEach(el => {
         el.addEventListener("input", () => validarCampoIndividual(el));
         el.addEventListener("change", () => validarCampoIndividual(el));
-        el.addEventListener("blur", () => validarCampoIndividual(el)); // <<--- solución clave
+        el.addEventListener("blur", () => validarCampoIndividual(el));
+    });
+
+    document.getElementById("cbTipoOperacion").addEventListener("change", () => {
+
+        const tipoOperacion = document.getElementById("cbTipoOperacion").value;
+        const texto = document.getElementById("cbTipoOperacion").options[document.getElementById("cbTipoOperacion").selectedIndex]?.text?.toUpperCase();
+
+        const divCompra = document.getElementById("divCompra");
+        const divVenta = document.getElementById("divVenta");
+
+        // Ocultar ambos inicialmente
+        divCompra.hidden = true;
+        divVenta.hidden = true;
+
+        if (texto === "COMPRA") {
+            divCompra.hidden = false;
+            limpiarYValidarCampos(["cbMonedaIngresa_Compra", "cbCuentaIngresa_Compra", "cbMonedaEgresa_Compra", "cbCuentaEgresa_Compra"]);
+        } else if (texto === "VENTA") {
+            divVenta.hidden = false;
+            limpiarYValidarCampos(["cbMonedaEgresa_Venta", "cbCuentaEgresa_Venta", "cbMonedaIngresa_Venta", "cbCuentaIngresa_Venta"]);
+        }
+
+        cargarMonedasYLimpiar(); // << ANTES DE SETEAR COMBOS
+
     });
 
 
+   
+});
+
+function limpiarYValidarCampos(ids) {
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.selectedIndex = 0; // Volver a "Seleccionar"
+            el.classList.remove("is-valid", "is-invalid");
+           
+        }
+    });
+}
 
 
-})
+
 
 
 function validarCampoIndividual(el) {
     const valor = el.value.trim();
-    const esNumero = ["txtCotizacion", "txtImporteEgreso", "txtImporteIngreso"].includes(el.id);
+    const esNumero = el.id.includes("Importe") || el.id.includes("Cotizacion");
     const feedback = el.nextElementSibling;
 
-    if (feedback && feedback.classList.contains("invalid-feedback")) {
-        feedback.textContent = "Campo obligatorio";
-    }
+    if (!feedback || !feedback.classList.contains("invalid-feedback")) return;
 
     if (valor === "" || valor === "Seleccionar") {
         el.classList.remove("is-valid");
         el.classList.add("is-invalid");
+        feedback.textContent = "Campo obligatorio";
         verificarErroresGenerales();
-        return;
+    } else if (esNumero && isNaN(convertirMonedaAfloat(valor))) {
+        el.classList.remove("is-valid");
+        el.classList.add("is-invalid");
+        feedback.textContent = "Valor erróneo";
+        verificarErroresGenerales();
+    } else {
+        el.classList.remove("is-invalid");
+        el.classList.add("is-valid");
+        verificarErroresGenerales();
     }
 
-    if (esNumero) {
-        const sinFormato = valor.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
-        if (isNaN(parseFloat(sinFormato))) {
-            el.classList.remove("is-valid");
-            el.classList.add("is-invalid");
-            if (feedback) feedback.textContent = "Valor erróneo";
-            verificarErroresGenerales();
-            return;
-        }
+    // Validaciones adicionales
+    if (el.id.includes("Moneda")) {
+        if (el.id.includes("_Compra")) validarMonedasDistintas("Compra");
+        if (el.id.includes("_Venta")) validarMonedasDistintas("Venta");
     }
 
-    el.classList.remove("is-invalid");
-    el.classList.add("is-valid");
-
-    // 👉 Si el campo es uno de los dos selects de cuenta, validamos que sean distintas
-    if (el.id === "cbCuentaEgreso" || el.id === "cbCuentaIngreso") {
-        validarCuentasDistintas();
+    if (el.id.includes("Cuenta")) {
+        if (el.id.includes("_Compra")) validarCuentasDistintas("Compra");
+        if (el.id.includes("_Venta")) validarCuentasDistintas("Venta");
     }
-
-    if (el.id === "cbMonedaEgreso" || el.id === "cbMonedaIngreso") {
-        validarMonedasDistintas();
-    }
-
-    verificarErroresGenerales();
 }
 
 
 function validarMonedasDistintas() {
-    const egreso = document.getElementById("cbMonedaEgreso");
-    const ingreso = document.getElementById("cbMonedaIngreso");
+    const tipoOperacion = document.getElementById("cbTipoOperacion").options[document.getElementById("cbTipoOperacion").selectedIndex]?.text?.toUpperCase();
 
-    const feedbackEgreso = egreso?.nextElementSibling;
-    const feedbackIngreso = ingreso?.nextElementSibling;
+    let ingreso, egreso;
 
-    const valEgreso = egreso.value.trim();
-    const valIngreso = ingreso.value.trim();
+    if (tipoOperacion === "COMPRA") {
+        ingreso = document.getElementById("cbMonedaIngresa_Compra");
+        egreso = document.getElementById("cbMonedaEgresa_Compra");
+    } else if (tipoOperacion === "VENTA") {
+        ingreso = document.getElementById("cbMonedaIngresa_Venta");
+        egreso = document.getElementById("cbMonedaEgresa_Venta");
+    } else {
+        return true; // No aplica si no es compra o venta
+    }
+
+    const valIngreso = ingreso?.value.trim() || "";
+    const valEgreso = egreso?.value.trim() || "";
+
+    ingreso.classList.remove("is-invalid", "is-valid");
+    egreso.classList.remove("is-invalid", "is-valid");
 
     let valido = true;
 
-    egreso.classList.remove("is-invalid", "is-valid");
-    ingreso.classList.remove("is-invalid", "is-valid");
+    if (valIngreso === "" || valIngreso === "Seleccionar") {
+        ingreso.classList.add("is-invalid");
+        ingreso.nextElementSibling.textContent = "Campo obligatorio";
+        valido = false;
+    }
 
     if (valEgreso === "" || valEgreso === "Seleccionar") {
         egreso.classList.add("is-invalid");
-        if (feedbackEgreso) feedbackEgreso.textContent = "Campo obligatorio";
+        egreso.nextElementSibling.textContent = "Campo obligatorio";
         valido = false;
     }
 
-    if (valIngreso === "" || valIngreso === "Seleccionar") {
+    if (valIngreso !== "" && valEgreso !== "" && valIngreso === valEgreso) {
         ingreso.classList.add("is-invalid");
-        if (feedbackIngreso) feedbackIngreso.textContent = "Campo obligatorio";
-        valido = false;
-    }
-
-    if (valEgreso !== "" && valEgreso !== "Seleccionar" &&
-        valIngreso !== "" && valIngreso !== "Seleccionar" &&
-        valEgreso === valIngreso) {
-
         egreso.classList.add("is-invalid");
-        ingreso.classList.add("is-invalid");
 
-        if (feedbackEgreso) feedbackEgreso.textContent = "Las monedas no pueden ser iguales";
-        if (feedbackIngreso) feedbackIngreso.textContent = "Las monedas no pueden ser iguales";
-
+        ingreso.nextElementSibling.textContent = "Las monedas no pueden ser iguales";
+        egreso.nextElementSibling.textContent = "Las monedas no pueden ser iguales";
         valido = false;
     }
 
-    if (valido && valEgreso !== "" && valIngreso !== "" &&
-        valEgreso !== "Seleccionar" && valIngreso !== "Seleccionar" &&
-        valEgreso !== valIngreso) {
-
-        egreso.classList.add("is-valid");
+    if (valido && valIngreso !== valEgreso) {
         ingreso.classList.add("is-valid");
-
+        egreso.classList.add("is-valid");
     }
 
     const errorMsg = document.getElementById("errorCampos");
-    if (!valido) {
-        errorMsg.classList.remove("d-none");
-    }
+    if (!valido && errorMsg) errorMsg.classList.remove("d-none");
 
     return valido;
 }
-
 
 function validarCuentasDistintas() {
-    const egreso = document.getElementById("cbCuentaEgreso");
-    const ingreso = document.getElementById("cbCuentaIngreso");
+    const tipoOperacion = document.getElementById("cbTipoOperacion").options[document.getElementById("cbTipoOperacion").selectedIndex]?.text?.toUpperCase();
 
-    const feedbackEgreso = egreso?.nextElementSibling;
-    const feedbackIngreso = ingreso?.nextElementSibling;
+    let ingreso, egreso;
 
-    const valEgreso = egreso.value.trim();
-    const valIngreso = ingreso.value.trim();
+    if (tipoOperacion === "COMPRA") {
+        ingreso = document.getElementById("cbCuentaIngresa_Compra");
+        egreso = document.getElementById("cbCuentaEgresa_Compra");
+    } else if (tipoOperacion === "VENTA") {
+        ingreso = document.getElementById("cbCuentaIngresa_Venta");
+        egreso = document.getElementById("cbCuentaEgresa_Venta");
+    } else {
+        return true; // No aplica si no es compra o venta
+    }
+
+    const valIngreso = ingreso?.value.trim() || "";
+    const valEgreso = egreso?.value.trim() || "";
+
+    ingreso.classList.remove("is-invalid", "is-valid");
+    egreso.classList.remove("is-invalid", "is-valid");
 
     let valido = true;
 
-    // Reset visual
-    egreso.classList.remove("is-invalid", "is-valid");
-    ingreso.classList.remove("is-invalid", "is-valid");
-
-    // 1. Validar si están vacíos o en "Seleccionar"
-    if (valEgreso === "" || valEgreso === "Seleccionar") {
-        egreso.classList.add("is-invalid");
-        if (feedbackEgreso) feedbackEgreso.textContent = "Campo obligatorio";
-        valido = false;
-    }
-
     if (valIngreso === "" || valIngreso === "Seleccionar") {
         ingreso.classList.add("is-invalid");
-        if (feedbackIngreso) feedbackIngreso.textContent = "Campo obligatorio";
+        ingreso.nextElementSibling.textContent = "Campo obligatorio";
         valido = false;
     }
 
-    // 2. Si ambos son válidos, verificar que no sean iguales
-    if (valEgreso !== "" && valEgreso !== "Seleccionar" &&
-        valIngreso !== "" && valIngreso !== "Seleccionar" &&
-        valEgreso === valIngreso) {
-
+    if (valEgreso === "" || valEgreso === "Seleccionar") {
         egreso.classList.add("is-invalid");
-        ingreso.classList.add("is-invalid");
-
-        if (feedbackEgreso) feedbackEgreso.textContent = "Las cuentas no pueden ser iguales";
-        if (feedbackIngreso) feedbackIngreso.textContent = "Las cuentas no pueden ser iguales";
-
+        egreso.nextElementSibling.textContent = "Campo obligatorio";
         valido = false;
     }
 
-    // 3. Si ambos son válidos y distintos, marcar como válidos
-    if (valido && valEgreso !== "" && valIngreso !== "" &&
-        valEgreso !== "Seleccionar" && valIngreso !== "Seleccionar" &&
-        valEgreso !== valIngreso) {
+    if (valIngreso !== "" && valEgreso !== "" && valIngreso === valEgreso) {
+        ingreso.classList.add("is-invalid");
+        egreso.classList.add("is-invalid");
 
-        egreso.classList.add("is-valid");
+        ingreso.nextElementSibling.textContent = "Las cuentas no pueden ser iguales";
+        egreso.nextElementSibling.textContent = "Las cuentas no pueden ser iguales";
+        valido = false;
+    }
+
+    if (valido && valIngreso !== valEgreso) {
         ingreso.classList.add("is-valid");
+        egreso.classList.add("is-valid");
     }
 
-    // Mostrar u ocultar mensaje general
     const errorMsg = document.getElementById("errorCampos");
-    if (!valido) {
-        errorMsg.classList.remove("d-none");
-    }
+    if (!valido && errorMsg) errorMsg.classList.remove("d-none");
 
     return valido;
 }
-
 
 function verificarErroresGenerales() {
     const errorMsg = document.getElementById("errorCampos");
-
     const hayInvalidos = document.querySelectorAll("#formCotizacion .is-invalid").length > 0;
+    if (!errorMsg) return;
 
     if (!hayInvalidos) {
         errorMsg.classList.add("d-none");
@@ -234,156 +254,279 @@ function verificarErroresGenerales() {
 
 
 
-function limpiarErrores() {
-    document.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
-}
-
 function limpiarModal() {
     const formulario = document.querySelector("#formCotizacion");
     if (!formulario) return;
 
-    formulario.querySelectorAll("input, select").forEach(el => {
-        if (el.id === "txtFecha") {
-            // Fecha actual con zona horaria de Argentina
-            const fechaArgentina = moment.tz("America/Argentina/Buenos_Aires").format("YYYY-MM-DDTHH:mm");
-            el.value = fechaArgentina;
+    // Limpiar campos comunes
+    document.getElementById("txtId").value = "";
+    document.getElementById("txtCliente").value = "";
+    document.getElementById("cbPuntoVenta").selectedIndex = 0;
+    document.getElementById("cbTipoOperacion").selectedIndex = 0;
 
-            // Marcar como válido (con tilde verde)
-            el.classList.remove("is-invalid");
-            el.classList.add("is-valid");
-        } else if (el.tagName === "SELECT") {
-            el.selectedIndex = 0;
-            el.classList.remove("is-invalid", "is-valid");
-        } else {
+    // Fecha actual en formato Argentina
+    const fechaArgentina = moment.tz("America/Argentina/Buenos_Aires").format("YYYY-MM-DDTHH:mm");
+    document.getElementById("txtFecha").value = fechaArgentina;
+
+    // Ocultar bloques
+    document.getElementById("divCompra").hidden = true;
+    document.getElementById("divVenta").hidden = true;
+
+    // Limpiar campos de COMPRA
+    [
+        "txtCotizacionCompra",
+        "cbMonedaIngresa_Compra", "cbCuentaIngresa_Compra", "txtImporteIngresa_Compra",
+        "cbMonedaEgresa_Compra", "cbCuentaEgresa_Compra", "txtImporteEgresa_Compra"
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el?.tagName === "SELECT") {
             el.value = "";
-            el.classList.remove("is-invalid", "is-valid");
+            el.dispatchEvent(new Event("change"));
+        } else if (el) {
+            el.value = "";
         }
+        el?.classList.remove("is-valid", "is-invalid");
     });
 
-    // Ocultar mensaje de error general
+    // Limpiar campos de VENTA
+    [
+        "txtCotizacionVenta",
+        "cbMonedaEgresa_Venta", "cbCuentaEgresa_Venta", "txtImporteEgresa_Venta",
+        "cbMonedaIngresa_Venta", "cbCuentaIngresa_Venta", "txtImporteIngresa_Venta"
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el?.tagName === "SELECT") {
+            el.value = "";
+            el.dispatchEvent(new Event("change"));
+        } else if (el) {
+            el.value = "";
+        }
+        el?.classList.remove("is-valid", "is-invalid");
+    });
+
+
+    // Mensaje de error general
     const errorMsg = document.getElementById("errorCampos");
     if (errorMsg) errorMsg.classList.add("d-none");
+
+    // Limpiar texto de modificación si existía
+    const divMod = document.getElementById("divModificacion");
+    const lblMod = document.getElementById("lblModificacion");
+    if (divMod) divMod.hidden = true;
+    if (lblMod) lblMod.textContent = "";
 }
 
 
-
 function validarCampos() {
-    const campos = [
+    limpiarErrores();
+
+    const camposBase = [
         "#txtFecha",
-        "#cbTipoOperacion",
-        "#txtCotizacion",
-        "#txtCliente",
-        "#cbMonedaEgreso",
-        "#cbCuentaEgreso",
-        "#txtImporteEgreso",
-        "#cbMonedaIngreso",
-        "#cbCuentaIngreso",
-        "#txtImporteIngreso",
-        "#cbPuntoVenta"
+        "#cbPuntoVenta",
+        "#cbTipoOperacion"
     ];
 
-    let valido = true;
+    let esValido = true;
 
-    campos.forEach(selector => {
-        const campo = document.querySelector(selector);
-        const feedback = campo?.nextElementSibling;
-        const esNumero = ["#txtCotizacion", "#txtImporteEgreso", "#txtImporteIngreso"].includes(selector);
+    camposBase.forEach(selector => {
+        const el = document.querySelector(selector);
+        const valor = el?.value?.trim();
+        const feedback = el?.nextElementSibling;
 
-        if (feedback?.classList.contains("invalid-feedback")) {
-            feedback.textContent = "Campo obligatorio";
-        }
-
-        if (!campo || campo.value.trim() === "" || campo.value === "Seleccionar") {
-            campo.classList.remove("is-valid");
-            campo.classList.add("is-invalid");
-            valido = false;
-        } else if (esNumero) {
-            const sinFormato = campo.value.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
-            if (isNaN(parseFloat(sinFormato))) {
-                campo.classList.remove("is-valid");
-                campo.classList.add("is-invalid");
-                if (feedback) feedback.textContent = "Valor erróneo";
-                valido = false;
-            } else {
-                campo.classList.remove("is-invalid");
-                campo.classList.add("is-valid");
-            }
+        if (!el || valor === "" || valor === "Seleccionar") {
+            el?.classList.add("is-invalid");
+            feedback && (feedback.textContent = "Campo obligatorio");
+            esValido = false;
         } else {
-            campo.classList.remove("is-invalid");
-            campo.classList.add("is-valid");
+            el?.classList.add("is-valid");
         }
     });
 
-    if (!validarCuentasDistintas()) valido = false;
-    if (!validarMonedasDistintas()) valido = false;
+    const tipoOperacion = document.getElementById("cbTipoOperacion").options[document.getElementById("cbTipoOperacion").selectedIndex]?.text?.toUpperCase();
 
+    if (!esValido) {
+        document.getElementById("errorCampos").classList.remove("d-none");
+        return false;
+    }
+
+    // Validaciones específicas por tipo
+    if (tipoOperacion === "COMPRA") {
+        esValido = validarCamposCompra();
+    } else if (tipoOperacion === "VENTA") {
+        esValido = validarCamposVenta();
+    }
 
     const errorMsg = document.getElementById("errorCampos");
-    if (!valido) {
+    if (!esValido) {
         errorMsg.classList.remove("d-none");
     } else {
         errorMsg.classList.add("d-none");
     }
 
-    return valido;
+    return esValido;
+}
+
+function validarCamposCompra() {
+    const campos = [
+        "#txtFecha",
+        "#cbPuntoVenta",
+        "#cbTipoOperacion",
+        "#txtCotizacionCompra",
+        "#cbMonedaIngresa_Compra",
+        "#cbCuentaIngresa_Compra",
+        "#txtImporteIngresa_Compra",
+        "#cbMonedaEgresa_Compra",
+        "#cbCuentaEgresa_Compra",
+        "#txtImporteEgresa_Compra"
+    ];
+
+    let esValido = true;
+
+    campos.forEach(selector => {
+        const el = document.querySelector(selector);
+        if (!el) return;
+
+        const valor = el.value.trim();
+        const feedback = el.nextElementSibling;
+        const esNumero = el.id.includes("Importe") || el.id.includes("Cotizacion");
+
+        if (valor === "" || valor === "Seleccionar") {
+            el.classList.add("is-invalid");
+            if (feedback) feedback.textContent = "Campo obligatorio";
+            esValido = false;
+        } else if (esNumero && isNaN(convertirMonedaAfloat(valor))) {
+            el.classList.add("is-invalid");
+            if (feedback) feedback.textContent = "Valor erróneo";
+            esValido = false;
+        } else {
+            el.classList.add("is-valid");
+        }
+    });
+
+    return esValido;
+}
+
+function validarCamposVenta() {
+    const campos = [
+        "#txtFecha",
+        "#cbPuntoVenta",
+        "#cbTipoOperacion",
+        "#txtCotizacionVenta",
+        "#cbMonedaEgresa_Venta",
+        "#cbCuentaEgresa_Venta",
+        "#txtImporteEgresa_Venta",
+        "#cbMonedaIngresa_Venta",
+        "#cbCuentaIngresa_Venta",
+        "#txtImporteIngresa_Venta"
+    ];
+
+    let esValido = true;
+
+    campos.forEach(selector => {
+        const el = document.querySelector(selector);
+        if (!el) return;
+
+        const valor = el.value.trim();
+        const feedback = el.nextElementSibling;
+        const esNumero = el.id.includes("Importe") || el.id.includes("Cotizacion");
+
+        if (valor === "" || valor === "Seleccionar") {
+            el.classList.add("is-invalid");
+            if (feedback) feedback.textContent = "Campo obligatorio";
+            esValido = false;
+        } else if (esNumero && isNaN(convertirMonedaAfloat(valor))) {
+            el.classList.add("is-invalid");
+            if (feedback) feedback.textContent = "Valor erróneo";
+            esValido = false;
+        } else {
+            el.classList.add("is-valid");
+        }
+    });
+
+    return esValido;
 }
 
 
-
+function limpiarErrores() {
+    document.querySelectorAll(".is-invalid, .is-valid").forEach(el => {
+        el.classList.remove("is-invalid", "is-valid");
+    });
+}
 
 async function guardarOperacion() {
-    if (validarCampos()) {
-        const id = $("#txtId").val();
-        const idCajaIngreso = $("#txtIdCajaIngreso").val();
-        const idCajaEgreso = $("#txtIdCajaEgreso").val();
 
-        const nuevoModelo = {
-            Id: id !== "" ? id : 0,
-            IdCajaIngreso: id !== "" ? idCajaIngreso : 0,
-            IdCajaEgreso: id !== "" ? idCajaEgreso : 0,
-            Cotizacion: convertirMonedaAfloat($("#txtCotizacion").val()) || 0,
-            Fecha: $("#txtFecha").val(),
-            IdCajaAsociado: 0, // si no tenés este dato en el modal, lo podés dejar fijo o agregarlo
-            IdCuentaEgreso: $("#cbCuentaEgreso").val(),
-            IdCuentaIngreso: $("#cbCuentaIngreso").val(),
-            IdMonedaEgreso: $("#cbMonedaEgreso").val(),
-            IdMonedaIngreso: $("#cbMonedaIngreso").val(),
-            IdPuntoVenta: $("#cbPuntoVenta").val(), // igual que CajaAsociado, si no está en el modal
-            IdTipo: $("#cbTipoOperacion").val(),
-            Cliente: $("#txtCliente").val(),
-            NotaInterna: $("#txtNota").val(),
-            IdUsuario: userSession.Id, // poné acá tu variable global del usuario actual
-            ImporteIngreso: convertirMonedaAfloat($("#txtImporteIngreso").val()) || 0,
-            ImporteEgreso: convertirMonedaAfloat($("#txtImporteEgreso").val()) || 0
-        };
+    // Validación previa
+    if (!validarCampos()) return;
 
-        const url = id === "" ? "/Operaciones/Insertar" : "/Operaciones/Actualizar";
-        const method = id === "" ? "POST" : "PUT";
+    const tipoOperacion = document.getElementById("cbTipoOperacion").options[document.getElementById("cbTipoOperacion").selectedIndex]?.text?.toUpperCase();
+    const id = $("#txtId").val();
 
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8'
-                },
-                body: JSON.stringify(nuevoModelo)
-            });
+    const nuevoModelo = {
+        Id: id !== "" ? parseInt(id) : 0,
+        Fecha: $("#txtFecha").val(),
+        IdPuntoVenta: parseInt($("#cbPuntoVenta").val()),
+        IdTipo: parseInt($("#cbTipoOperacion").val()),
+        Cliente: $("#txtCliente").val(),
+        IdCajaEgreso: parseInt($("#txtIdCajaEgreso").val() || 0),
+        IdCajaIngreso: parseInt($("#txtIdCajaIngreso").val() || 0),
+        IdUsuario: userSession.Id,
+        IdUsuarioActualizacion: userSession.Id, // si estás actualizando, mismo usuario por ahora
+        NotaInterna: "",
 
-            if (!response.ok) throw new Error(response.statusText);
+        // Por defecto
+        Cotizacion: 0,
+        IdMonedaIngreso: 0,
+        IdCuentaIngreso: 0,
+        ImporteIngreso: 0,
+        IdMonedaEgreso: 0,
+        IdCuentaEgreso: 0,
+        ImporteEgreso: 0
+    };
 
-            const dataJson = await response.json();
+    if (tipoOperacion === "COMPRA") {
+        nuevoModelo.Cotizacion = convertirMonedaAfloat($("#txtCotizacionCompra").val());
+        nuevoModelo.IdMonedaIngreso = parseInt($("#cbMonedaIngresa_Compra").val());
+        nuevoModelo.IdCuentaIngreso = parseInt($("#cbCuentaIngresa_Compra").val());
+        nuevoModelo.ImporteIngreso = convertirMonedaAfloat($("#txtImporteIngresa_Compra").val());
 
-            if (dataJson.valor === true) {
-                $('#modalCotizacion').modal('hide');
-                exitoModal(id === "" ? "Operación registrada correctamente" : "Operación modificada correctamente");
-                aplicarFiltros();
-            } else {
-                errorModal("Hubo un problema al guardar la operación.");
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            errorModal("Error inesperado al guardar.");
+        nuevoModelo.IdMonedaEgreso = parseInt($("#cbMonedaEgresa_Compra").val());
+        nuevoModelo.IdCuentaEgreso = parseInt($("#cbCuentaEgresa_Compra").val());
+        nuevoModelo.ImporteEgreso = convertirMonedaAfloat($("#txtImporteEgresa_Compra").val());
+    } else if (tipoOperacion === "VENTA") {
+        nuevoModelo.Cotizacion = convertirMonedaAfloat($("#txtCotizacionVenta").val());
+        nuevoModelo.IdMonedaEgreso = parseInt($("#cbMonedaEgresa_Venta").val());
+        nuevoModelo.IdCuentaEgreso = parseInt($("#cbCuentaEgresa_Venta").val());
+        nuevoModelo.ImporteEgreso = convertirMonedaAfloat($("#txtImporteEgresa_Venta").val());
+
+        nuevoModelo.IdMonedaIngreso = parseInt($("#cbMonedaIngresa_Venta").val());
+        nuevoModelo.IdCuentaIngreso = parseInt($("#cbCuentaIngresa_Venta").val());
+        nuevoModelo.ImporteIngreso = convertirMonedaAfloat($("#txtImporteIngresa_Venta").val());
+    }
+
+    const url = id === "" ? "/Operaciones/Insertar" : "/Operaciones/Actualizar";
+    const method = id === "" ? "POST" : "PUT";
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(nuevoModelo)
+        });
+
+        const dataJson = await response.json();
+
+        if (dataJson.valor === true) {
+            $('#modalCotizacion').modal('hide');
+            exitoModal(id === "" ? "Operación registrada correctamente" : "Operación modificada correctamente");
+            aplicarFiltros();
+        } else {
+            errorModal("Hubo un problema al guardar la operación.");
         }
+    } catch (error) {
+        console.error('Error:', error);
+        errorModal("Error inesperado al guardar.");
     }
 }
 
@@ -391,37 +534,30 @@ async function guardarOperacion() {
 async function nuevaOperacion() {
     limpiarModal();
     limpiarErrores();
+
     document.getElementById("errorCampos").classList.add("d-none");
     document.getElementById("divModificacion").setAttribute("hidden", "hidden");
-    const selectEgreso = document.getElementById(`cbCuentaEgreso`);
-    selectEgreso.innerHTML = ""; // limpia todo
-    const selectIngreso = document.getElementById(`cbCuentaIngreso`);
-    selectIngreso.innerHTML = ""; // limpia todo
 
-    // Obtener fecha y hora actual de Argentina con Moment.js
     const fechaArgentina = moment.tz("America/Argentina/Buenos_Aires").format("YYYY-MM-DDTHH:mm");
-
     document.getElementById("txtFecha").value = fechaArgentina;
+    document.getElementById("txtFecha").classList.add("is-valid"); // ✅ Marca como campo válido
+
+
     await listaTipos();
     await listaPuntosDeVenta();
-    await listaMonedas('Ingreso');
-    await listaMonedas('Egreso');
-
+   
     if (userSession.IdRol != 1) {
         document.getElementById("cbPuntoVenta").value = userSession.IdPuntoVenta;
         document.getElementById("cbPuntoVenta").setAttribute("disabled", true);
     }
 
+ 
+
     document.getElementById("btnRegistrarGuardar").innerText = "Registrar";
+    document.getElementById("modalCotizacionLabel").textContent = "Nueva Operación";
 
     $('#modalCotizacion').modal('show');
-    $("#btnGuardar").text("Registrar");
-    $("#modalCotizacionLabel").text("Nueva Operacion");
-
-
 }
-
-
 
 async function listaOperaciones(FechaDesde, FechaHasta, IdTipoOperacion, IdPuntoVenta, IdUsuario) {
     const url = `/Operaciones/Lista?FechaDesde=${FechaDesde}&FechaHasta=${FechaHasta}&IdTipoOperacion=${IdTipoOperacion}&IdPuntoVenta=${IdPuntoVenta}&IdUsuario=${IdUsuario}`;
@@ -429,7 +565,6 @@ async function listaOperaciones(FechaDesde, FechaHasta, IdTipoOperacion, IdPunto
     const data = await response.json();
     await configurarDataTable(data);
 }
-
 
 const editarOperacion = id => {
     fetch("/Operaciones/EditarInfo?id=" + id)
@@ -448,6 +583,7 @@ const editarOperacion = id => {
             errorModal("Ha ocurrido un error.");
         });
 }
+
 async function eliminarOperacion(id) {
     let resultado = window.confirm("¿Desea eliminar la operacion?");
 
@@ -658,8 +794,6 @@ async function configurarDataTable(data) {
     }
 }
 
-
-
 function configurarOpcionesColumnas() {
     const grid = $('#grd_Operaciones').DataTable(); // Accede al objeto DataTable utilizando el id de la tabla
     const columnas = grid.settings().init().columns; // Obtiene la configuración de columnas
@@ -703,8 +837,6 @@ function configurarOpcionesColumnas() {
     });
 }
 
-
-
 function toggleAcciones(id) {
     var $dropdown = $(`.acciones-menu[data-id="${id}"] .acciones-dropdown`);
 
@@ -725,133 +857,8 @@ $(document).on('click', function (e) {
     }
 });
 
-async function listaTipos() {
-    const url = `/Operaciones/ListaTipos`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const select = document.getElementById("cbTipoOperacion");
-    select.innerHTML = ""; // limpia todo
-
-    // Agregar opción "Seleccionar"
-    const defaultOption = document.createElement("option");
-    defaultOption.text = "Seleccionar";
-    defaultOption.value = "";
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    select.appendChild(defaultOption);
-
-    // Agregar opciones desde la API
-    for (let i = 0; i < data.length; i++) {
-        const option = document.createElement("option");
-        option.value = data[i].Id;
-        option.text = data[i].Nombre;
-        select.appendChild(option);
-    }
-}
 
 
-async function listaPuntosDeVenta() {
-    const url = `/PuntosDeVenta/ListaActivos`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const select = document.getElementById("cbPuntoVenta");
-    select.innerHTML = ""; // limpia todo
-
-    // Agregar opción "Seleccionar"
-    const defaultOption = document.createElement("option");
-    defaultOption.text = "Seleccionar";
-    defaultOption.value = "";
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    select.appendChild(defaultOption);
-
-    // Agregar opciones desde la API
-    for (let i = 0; i < data.length; i++) {
-        const option = document.createElement("option");
-        option.value = data[i].Id;
-        option.text = data[i].Nombre;
-        select.appendChild(option);
-    }
-}
-
-
-async function listarMonedas() {
-    const url = `/Monedas/Lista`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    return data;
-}
-
-async function listaMonedas(tipo) {
-
-    const data = await listarMonedas();
-
-    const select = document.getElementById(`cbMoneda${tipo}`);
-    select.innerHTML = ""; // limpia todo
-
-    // Agregar opción "Seleccionar"
-    const defaultOption = document.createElement("option");
-    defaultOption.text = "Seleccionar";
-    defaultOption.value = "";
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    select.appendChild(defaultOption);
-
-    // Agregar opciones desde la API
-    for (let i = 0; i < data.length; i++) {
-        const option = document.createElement("option");
-        option.value = data[i].Id;
-        option.text = data[i].Nombre;
-        select.appendChild(option);
-    }
-}
-
-
-async function listarCuentas(moneda) {
-    const url = `/Cuentas/ListaPorMoneda?IdMoneda=${moneda}`;
-    const response = await fetch(url);
-    const data = await response.json();
-
-    return data;
-}
-
-document.getElementById("cbMonedaEgreso").addEventListener("change", function () {
-    const moneda = this.value;
-    cargarCuentas("Egreso", moneda);
-});
-
-document.getElementById("cbMonedaIngreso").addEventListener("change", function () {
-    const moneda = this.value;
-    cargarCuentas("Ingreso", moneda);
-});
-
-
-async function cargarCuentas(tipo, moneda) {
-
-    const data = await listarCuentas(moneda);
-
-    const select = document.getElementById(`cbCuenta${tipo}`);
-    select.innerHTML = ""; // limpia todo
-
-    // Agregar opción "Seleccionar"
-    const defaultOption = document.createElement("option");
-    defaultOption.text = "Seleccionar";
-    defaultOption.value = "";
-    defaultOption.disabled = true;
-    defaultOption.selected = true;
-    select.appendChild(defaultOption);
-
-    // Agregar opciones desde la API
-    for (let i = 0; i < data.length; i++) {
-        const option = document.createElement("option");
-        option.value = data[i].Id;
-        option.text = data[i].Nombre;
-        select.appendChild(option);
-    }
-}
 
 const campos = [
     "#txtCotizacion",
@@ -867,90 +874,81 @@ campos.forEach(selector => {
     }
 });
 
-function aplicarFormatoMoneda(input, callback) {
-    input.addEventListener("blur", function () {
-        let rawValue = this.value.trim();
-
-        // Eliminar cualquier símbolo no numérico, excepto , y .
-        rawValue = rawValue.replace(/[^\d.,-]/g, '');
-
-        // Reemplazar separadores (puntos por nada, comas por punto)
-        let parsedValue = parseFloat(rawValue.replace(/\./g, '').replace(',', '.'));
-
-        // Validamos valor antes de formatear
-        if (!isNaN(parsedValue)) {
-            this.value = formatNumber(parsedValue);
-        }
-
-        // Callback opcional
-        if (typeof callback === 'function') {
-            callback();
-        }
-    });
-
-    input.addEventListener("focus", function () {
-        let cleanValue = this.value.replace(/[^\d.,-]/g, '');
-        let parsed = parseFloat(cleanValue.replace(/\./g, '').replace(',', '.'));
-        this.value = isNaN(parsed) ? "" : parsed;
-    });
-}
-
-
 async function mostrarModalOperacion(modelo) {
     limpiarModal();
+    limpiarErrores();
+    await listaPuntosDeVenta();
+    await listaTipos();
 
-    // Fecha con formato compatible con input tipo datetime-local
     const fechaFormateada = moment(modelo.Fecha).format("YYYY-MM-DDTHH:mm");
     document.getElementById("txtFecha").value = fechaFormateada;
-
     document.getElementById("txtId").value = modelo.Id || "";
-    document.getElementById("txtIdCajaIngreso").value = modelo.IdCajaIngreso || "";
-    document.getElementById("txtIdCajaEgreso").value = modelo.IdCajaEgreso || "";
-    document.getElementById("txtCotizacion").value = formatNumber(modelo.Cotizacion || 0);
     document.getElementById("txtCliente").value = modelo.Cliente || "";
-    document.getElementById("txtNota").value = modelo.NotaInterna || "";
-    document.getElementById("txtImporteIngreso").value = formatNumber(modelo.ImporteIngreso || 0);
-    document.getElementById("txtImporteEgreso").value = formatNumber(modelo.ImporteEgreso || 0);
-    document.getElementById("txtImporteEgreso").value = formatNumber(modelo.ImporteEgreso || 0);
+    document.getElementById("cbPuntoVenta").value = modelo.IdPuntoVenta || "";
 
-    if (modelo.FechaActualizacion && modelo.UsuarioActualizacion) {
-        const fechaFormateada = moment(modelo.FechaActualizacion).format("DD/MM/YYYY [a las] HH:mm");
-        document.getElementById("lblModificacion").textContent = `Última modificación el día ${fechaFormateada} por ${modelo.UsuarioActualizacion}`;
-        document.getElementById("divModificacion").removeAttribute("hidden");
+    await cargarMonedasYLimpiar(); // << ANTES DE SETEAR COMBOS
+
+    document.getElementById("cbTipoOperacion").value = modelo.IdTipo || "";
+    document.getElementById("cbTipoOperacion").dispatchEvent(new Event("change"));
+    document.getElementById("txtIdCajaEgreso").value = modelo.IdCajaEgreso;
+    document.getElementById("txtIdCajaIngreso").value = modelo.IdCajaIngreso;
+    
+
+
+
+    const tipoOperacion = modelo.Tipo.toUpperCase();
+
+    if (tipoOperacion === "COMPRA") {
+        document.getElementById("txtCotizacionCompra").value = formatNumber(modelo.Cotizacion || 0);
+        document.getElementById("txtImporteIngresa_Compra").value = formatNumber(modelo.ImporteIngreso || 0);
+        document.getElementById("txtImporteEgresa_Compra").value = formatNumber(modelo.ImporteEgreso || 0);
+
+        await cargarCuentasNueva(modelo.IdMonedaIngreso, "Compra", "Ingresa");
+        await cargarCuentasNueva(modelo.IdMonedaEgreso, "Compra", "Egresa");
+
+        document.getElementById("cbCuentaEgresa_Compra").value = modelo.IdCuentaEgreso;
+        document.getElementById("cbCuentaIngresa_Compra").value = modelo.IdCuentaIngreso;
+        document.getElementById("cbMonedaEgresa_Compra").value = modelo.IdMonedaEgreso;
+        document.getElementById("cbMonedaIngresa_Compra").value = modelo.IdMonedaIngreso;
+
+        document.getElementById("divCompra").removeAttribute("hidden");
+
+    } else if (tipoOperacion === "VENTA") {
+        document.getElementById("divVenta").removeAttribute("hidden");
+        document.getElementById("txtCotizacionVenta").value = formatNumber(modelo.Cotizacion || 0);
+        document.getElementById("txtImporteIngresa_Venta").value = formatNumber(modelo.ImporteIngreso || 0);
+        document.getElementById("txtImporteEgresa_Venta").value = formatNumber(modelo.ImporteEgreso || 0);
+
+       
+        await cargarCuentasNueva(modelo.IdMonedaIngreso, "Venta", "Ingresa");
+        await cargarCuentasNueva(modelo.IdMonedaEgreso, "Venta", "Egresa");
+
+        document.getElementById("cbCuentaEgresa_Venta").value = modelo.IdCuentaEgreso;
+        document.getElementById("cbCuentaIngresa_Venta").value = modelo.IdCuentaIngreso;
+        document.getElementById("cbMonedaEgresa_Venta").value = modelo.IdMonedaEgreso;
+        document.getElementById("cbMonedaIngresa_Venta").value = modelo.IdMonedaIngreso;
+
+       
     }
-
-
-    document.getElementById("btnRegistrarGuardar").innerText = "Guardar";
-
-    await listaTipos();
-    await listaPuntosDeVenta();
-    await listaMonedas('Ingreso');
-    await listaMonedas('Egreso');
 
     if (userSession.IdRol != 1) {
         document.getElementById("cbPuntoVenta").value = userSession.IdPuntoVenta;
         document.getElementById("cbPuntoVenta").setAttribute("disabled", true);
     }
 
-    document.getElementById("cbTipoOperacion").value = modelo.IdTipo || "";
-    document.getElementById("cbPuntoVenta").value = modelo.IdPuntoVenta || "";
-    document.getElementById("cbMonedaIngreso").value = modelo.IdMonedaIngreso || "";
-    document.getElementById("cbMonedaEgreso").value = modelo.IdMonedaEgreso || "";
+    if (modelo.IdUsuarioActualizacion && modelo.FechaActualizacion) {
+        const fechaMod = moment(modelo.FechaActualizacion).format("DD/MM/YYYY HH:mm");
+        document.getElementById("divModificacion").hidden = false;
+        document.getElementById("lblModificacion").textContent = `Última modificación por ${modelo.UsuarioActualizacion} el ${fechaMod}`;
+    }
 
-    await cargarCuentas("Ingreso", modelo.IdMonedaIngreso);
-    await cargarCuentas("Egreso", modelo.IdMonedaEgreso);
+    document.getElementById("btnRegistrarGuardar").innerText = "Guardar";
+    document.getElementById("modalCotizacionLabel").innerText = "Modificar operación";
 
-    document.getElementById("cbCuentaIngreso").value = modelo.IdCuentaIngreso || "";
-    document.getElementById("cbCuentaEgreso").value = modelo.IdCuentaEgreso || "";
+    validarCampos()
 
     $("#modalCotizacion").modal("show");
-    $("#btnGuardar").text("Guardar");
-    $("#modalCotizacionLabel").text("Modificar operación");
-
-    // Validar campos una vez cargado
-    validarCampos();
 }
-
 
 async function aplicarFiltros() {
     if (userSession.IdRol == 1) {
@@ -1026,5 +1024,277 @@ async function listaTiposFiltro() {
         option.text = data[i].Nombre;
         select.appendChild(option);
 
+    }
+}
+
+async function listaTipos() {
+    const url = `/Operaciones/ListaTipos`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const select = document.getElementById("cbTipoOperacion");
+    select.innerHTML = ""; // limpia todo
+
+    // Agregar opción "Seleccionar"
+    const defaultOption = document.createElement("option");
+    defaultOption.text = "Seleccionar";
+    defaultOption.value = "";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    // Agregar opciones desde la API
+    for (let i = 0; i < data.length; i++) {
+        const option = document.createElement("option");
+        option.value = data[i].Id;
+        option.text = data[i].Nombre;
+        select.appendChild(option);
+    }
+}
+
+async function listaPuntosDeVenta() {
+    const url = `/PuntosDeVenta/ListaActivos`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const select = document.getElementById("cbPuntoVenta");
+    select.innerHTML = ""; // limpia todo
+
+    // Agregar opción "Seleccionar"
+    const defaultOption = document.createElement("option");
+    defaultOption.text = "Seleccionar";
+    defaultOption.value = "";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    // Agregar opciones desde la API
+    for (let i = 0; i < data.length; i++) {
+        const option = document.createElement("option");
+        option.value = data[i].Id;
+        option.text = data[i].Nombre;
+        select.appendChild(option);
+    }
+}
+
+async function listarMonedas() {
+    const url = `/Monedas/Lista`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data;
+}
+
+
+async function listarCuentas(moneda) {
+    const url = `/Cuentas/ListaPorMoneda?IdMoneda=${moneda}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data;
+}
+
+async function listarCuentasOperacion(moneda) {
+    const url = `/Cuentas/ListaPorMonedaOperacion?IdMoneda=${moneda}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data;
+}
+
+
+["txtCotizacionCompra", "txtCotizacionVenta",
+    "txtImporteIngresa_Compra", "txtImporteEgresa_Compra",
+    "txtImporteIngresa_Venta", "txtImporteEgresa_Venta"
+].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+        input.addEventListener("blur", () => {
+            input.value = formatNumber(convertirMonedaAfloat(input.value));
+        });
+    }
+});
+
+async function cargarMonedasYLimpiar() {
+    const data = await listarMonedas();
+    const textoOperacion = document.getElementById("cbTipoOperacion")
+        .options[document.getElementById("cbTipoOperacion").selectedIndex]?.text?.toUpperCase();
+
+    const excluirARS_SegunOperacion = {
+        "COMPRA": {
+            cbMonedaIngresa_Compra: true,   // nunca se compra ARS
+            cbMonedaEgresa_Compra: false    // se paga con ARS
+        },
+        "VENTA": {
+            cbMonedaEgresa_Venta: true,     // nunca se vende ARS
+            cbMonedaIngresa_Venta: false    // se recibe ARS
+        }
+    };
+
+    const estructura = excluirARS_SegunOperacion[textoOperacion] || {};
+
+    for (const [id, excluirARS] of Object.entries(estructura)) {
+        const select = document.getElementById(id);
+        if (!select) continue;
+
+        select.innerHTML = "";
+
+        const defaultOption = new Option("Seleccionar", "", true, true);
+        defaultOption.disabled = true;
+        select.appendChild(defaultOption);
+
+        const monedasFiltradas = excluirARS
+            ? data.filter(mon => mon.Nombre.toUpperCase() !== "ARS")
+            : data;
+
+        monedasFiltradas.forEach(mon => {
+            select.appendChild(new Option(mon.Nombre, mon.Id));
+        });
+
+        validarCampoIndividual(select);
+    }
+}
+
+
+async function listarCuentasOperacion(moneda) {
+    const url = `/Cuentas/ListaPorMonedaOperacion?IdMoneda=${moneda}`;
+    const response = await fetch(url);
+    return await response.json();
+}
+
+async function cargarCuentasNueva(idMoneda, tipoOperacion, sentido) {
+    const idComboMoneda = `cbMoneda${sentido}_${tipoOperacion}`;
+    const idComboCuenta = `cbCuenta${sentido}_${tipoOperacion}`;
+    const selectCuenta = document.getElementById(idComboCuenta);
+
+    // Reiniciar el combo de cuentas
+    selectCuenta.innerHTML = "";
+    const optionDefault = new Option("Seleccionar", "", true, true);
+    optionDefault.disabled = true;
+    selectCuenta.appendChild(optionDefault);
+
+    // Si no hay moneda válida, solo muestro "Seleccionar" y valido
+    if (!idMoneda || idMoneda === "" || idMoneda === "Seleccionar") {
+        validarCampoIndividual(selectCuenta); // ✅ solo esta cuenta
+        return;
+    }
+
+    // Traer cuentas y poblar
+    const data = await listarCuentasOperacion(idMoneda);
+
+    data.forEach(c => {
+        selectCuenta.appendChild(new Option(c.Nombre, c.Id));
+    });
+
+    // Seleccionar primer cuenta si hay y validar solo esa
+    if (data.length > 0) {
+        selectCuenta.selectedIndex = 1;
+        validarCampoIndividual(selectCuenta); // ✅ valida solo esta cuenta
+    }
+}
+
+
+
+document.getElementById("cbMonedaIngresa_Compra").addEventListener("change", async (e) => {
+    await cargarCuentasNueva(e.target.value, "Compra", "Ingresa");
+    actualizarComboOpuesto("Compra", "Ingresa", "Egresa");
+    validarMonedasDistintas("Compra");
+});
+
+document.getElementById("cbMonedaEgresa_Compra").addEventListener("change", async (e) => {
+    await cargarCuentasNueva(e.target.value, "Compra", "Egresa");
+    actualizarComboOpuesto("Compra", "Egresa", "Ingresa");
+    validarMonedasDistintas("Compra");
+});
+
+document.getElementById("cbMonedaIngresa_Venta").addEventListener("change", async (e) => {
+    await cargarCuentasNueva(e.target.value, "Venta", "Ingresa");
+    actualizarComboOpuesto("Venta", "Ingresa", "Egresa");
+    validarMonedasDistintas("Venta");
+});
+
+document.getElementById("cbMonedaEgresa_Venta").addEventListener("change", async (e) => {
+    await cargarCuentasNueva(e.target.value, "Venta", "Egresa");
+    actualizarComboOpuesto("Venta", "Egresa", "Ingresa");
+    validarMonedasDistintas("Venta");
+});
+
+// VENTA
+document.getElementById("txtImporteEgresa_Venta").addEventListener("input", () => {
+    actualizarCampoARS_V2("Venta");
+});
+document.getElementById("txtCotizacionVenta").addEventListener("input", () => {
+    actualizarCampoARS_V2("Venta");
+});
+
+// COMPRA
+document.getElementById("txtImporteIngresa_Compra").addEventListener("input", () => {
+    actualizarCampoARS_V2("Compra");
+});
+document.getElementById("txtCotizacionCompra").addEventListener("input", () => {
+    actualizarCampoARS_V2("Compra");
+});
+
+
+async function actualizarComboOpuesto(tipoOperacion, origen, destino) {
+    const comboOrigen = document.getElementById(`cbMoneda${origen}_${tipoOperacion}`);
+    const comboDestino = document.getElementById(`cbMoneda${destino}_${tipoOperacion}`);
+
+    const idSeleccionadaOrigen = comboOrigen.value;
+    const valorDestinoActual = comboDestino.value;
+
+    const data = await listarMonedas();
+
+    comboDestino.innerHTML = "";
+
+    const defaultOption = new Option("Seleccionar", "", true, true);
+    defaultOption.disabled = true;
+    comboDestino.appendChild(defaultOption);
+
+    data.forEach(mon => {
+        if (mon.Id != idSeleccionadaOrigen) {
+            const option = new Option(mon.Nombre, mon.Id);
+            comboDestino.appendChild(option);
+        }
+    });
+
+    // Intentar restaurar el valor anterior si sigue estando
+    const opcionSigueEstando = Array.from(comboDestino.options).some(opt => opt.value == valorDestinoActual);
+    if (opcionSigueEstando) {
+        comboDestino.value = valorDestinoActual;
+    }
+
+    comboDestino.classList.remove("is-valid", "is-invalid");
+
+   
+}
+
+
+function actualizarCampoARS_V2(tipoOperacion) {
+    const cbMonedaIngreso = document.getElementById(`cbMonedaIngresa_${tipoOperacion}`);
+    const cbMonedaEgreso = document.getElementById(`cbMonedaEgresa_${tipoOperacion}`);
+    const txtImporteIngreso = document.getElementById(`txtImporteIngresa_${tipoOperacion}`);
+    const txtImporteEgreso = document.getElementById(`txtImporteEgresa_${tipoOperacion}`);
+    const txtCotizacion = document.getElementById(`txtCotizacion${tipoOperacion}`);
+
+    const textoMonedaIngreso = cbMonedaIngreso.options[cbMonedaIngreso.selectedIndex]?.text?.toUpperCase();
+    const textoMonedaEgreso = cbMonedaEgreso.options[cbMonedaEgreso.selectedIndex]?.text?.toUpperCase();
+
+    const cotizacion = convertirMonedaAfloat(txtCotizacion.value);
+
+    if (tipoOperacion === "Compra") {
+        // Compra: egresás ARS, cotizas contra lo que ingresás
+        const importeIngreso = convertirMonedaAfloat(txtImporteIngreso.value);
+        if (!isNaN(importeIngreso) && !isNaN(cotizacion)) {
+            txtImporteEgreso.value = formatNumber(importeIngreso * cotizacion);
+        }
+    }
+
+    if (tipoOperacion === "Venta") {
+        // Venta: ingresás ARS, cotizas contra lo que egresás
+        const importeEgreso = convertirMonedaAfloat(txtImporteEgreso.value);
+        if (!isNaN(importeEgreso) && !isNaN(cotizacion)) {
+            txtImporteIngreso.value = formatNumber(importeEgreso * cotizacion);
+        }
     }
 }
