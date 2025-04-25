@@ -51,6 +51,9 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IOperacionesRepository<Operaciones>, OperacionesRepository>();
 builder.Services.AddScoped<IOperacionesService, OperacionesService>();
 
+builder.Services.AddScoped<IGastosRepository<Gasto>, GastosRepository>();
+builder.Services.AddScoped<IGastosService, GastosService>();
+
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(o =>
     {

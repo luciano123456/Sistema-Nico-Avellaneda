@@ -13,11 +13,13 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("seccionConfiguraciones").removeAttribute("hidden");
             document.getElementById("seccionCajas").removeAttribute("hidden");
             document.getElementById("seccionOperaciones").removeAttribute("hidden");
+            document.getElementById("seccionGastos").removeAttribute("hidden");
         }
 
         if (userSession.IdPuntoVenta != null && userSession.IdRol != 1) {
             document.getElementById("seccionCajas").removeAttribute("hidden");
             document.getElementById("seccionOperaciones").removeAttribute("hidden");
+            document.getElementById("seccionGastos").removeAttribute("hidden");
         }
         // Si el usuario está en el localStorage, actualizar el texto del enlace
         var userFullName = userSession.Nombre + ' ' + userSession.Apellido;

@@ -10,6 +10,7 @@
     <Content Remove="wwwroot\css\NavBarLogin.css~RF1f800e21.TMP" />
     <Content Remove="wwwroot\js\Cajas.js" />
     <Content Remove="wwwroot\js\Cuentas.js" />
+    <Content Remove="wwwroot\js\Gastos.js" />
     <Content Remove="wwwroot\js\Home.js" />
     <Content Remove="wwwroot\js\Login.js" />
     <Content Remove="wwwroot\js\NavBarLogin.js" />
@@ -29,6 +30,7 @@
     <None Include="wwwroot\js\PuntosDeVenta.js" />
     <None Include="wwwroot\js\Operaciones.js" />
     <None Include="wwwroot\js\Cajas.js" />
+    <None Include="wwwroot\js\Gastos.js" />
     <None Include="wwwroot\js\UsuariosConfiguracion.js" />
     <None Include="wwwroot\js\Usuarios.js" />
     <None Include="wwwroot\js\NavBarLogin.js" />

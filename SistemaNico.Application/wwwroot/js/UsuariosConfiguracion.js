@@ -46,7 +46,7 @@ document.querySelector('#formularioActualizar').addEventListener('submit', async
             $('#contador').text(seconds);
             if (seconds === 0) {
                 clearInterval(interval);
-                window.location.href = '/';
+                window.location.href = '/Operaciones/';
             }
         }, 1000);
     } else {
