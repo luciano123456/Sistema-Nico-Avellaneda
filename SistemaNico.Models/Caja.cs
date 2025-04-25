@@ -27,6 +27,8 @@ public partial class Caja
 
     public decimal Egreso { get; set; }
 
+    public virtual ICollection<Gasto> Gastos { get; set; } = new List<Gasto>();
+
     public virtual Cuenta IdCuentaNavigation { get; set; } = null!;
 
     public virtual Moneda IdMonedaNavigation { get; set; } = null!;

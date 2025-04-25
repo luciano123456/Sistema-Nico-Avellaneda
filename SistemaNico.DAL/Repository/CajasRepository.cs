@@ -29,17 +29,26 @@ namespace SistemaNico.DAL.Repository
 
         public async Task<bool> Eliminar(int id)
         {
+            using var transaction = await _dbcontext.Database.BeginTransactionAsync();
+
             try
             {
-                Caja model = _dbcontext.Cajas.First(c => c.Id == id);
+                var model = await _dbcontext.Cajas.FirstOrDefaultAsync(c => c.Id == id);
+                if (model == null) throw new Exception("Caja no encontrada.");
+
                 _dbcontext.Cajas.Remove(model);
                 await _dbcontext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
                 return true;
-            } catch (Exception ex)
+            }
+            catch (Exception)
             {
+                await transaction.RollbackAsync();
                 return false;
             }
         }
+
 
         public async Task<bool> Insertar(Caja model)
         {

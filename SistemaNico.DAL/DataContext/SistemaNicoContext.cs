@@ -42,8 +42,7 @@ public partial class SistemaNicoContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-         //=> optionsBuilder.UseSqlServer("Server=DESKTOP-3MT5F5F; Database=Sistema_NicoAvellaneda; Integrated Security=true; Trusted_Connection=True; Encrypt=False");
-         => optionsBuilder.UseSqlServer("Server=200.73.140.119; Database=Sistema_NicoAvellaneda; User Id=PcJuan; Password=juan; Encrypt=False");
+        => optionsBuilder.UseSqlServer("Server=DESKTOP-3MT5F5F; Database=Sistema_NicoAvellaneda; Integrated Security=true; Trusted_Connection=True; Encrypt=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,11 +96,15 @@ public partial class SistemaNicoContext : DbContext
             entity.Property(e => e.Concepto)
                 .HasMaxLength(300)
                 .IsUnicode(false);
-            entity.Property(e => e.FechaHoraRegistro).HasColumnType("datetime");
+            entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.Importe).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.NotaInterna)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.IdCajaAsociadoNavigation).WithMany(p => p.Gastos)
+                .HasForeignKey(d => d.IdCajaAsociado)
+                .HasConstraintName("FK_Gastos_Cajas");
 
             entity.HasOne(d => d.IdCuentaNavigation).WithMany(p => p.Gastos)
                 .HasForeignKey(d => d.IdCuenta)
@@ -154,6 +157,9 @@ public partial class SistemaNicoContext : DbContext
 
         modelBuilder.Entity<Operaciones>(entity =>
         {
+            entity.Property(e => e.Cliente)
+                .HasMaxLength(100)
+                .IsUnicode(false);
             entity.Property(e => e.Cotizacion).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Fecha).HasColumnType("datetime");
             entity.Property(e => e.FechaActualizacion).HasColumnType("datetime");

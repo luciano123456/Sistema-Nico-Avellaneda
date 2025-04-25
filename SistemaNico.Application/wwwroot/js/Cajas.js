@@ -370,7 +370,7 @@ const editarCaja = async id => {
 
 
 async function eliminarCaja(id) {
-    let resultado = window.confirm("¿Desea eliminar el Caja?");
+    let resultado = window.confirm("¿Desea eliminar la Caja?");
 
     if (resultado) {
         try {
@@ -386,7 +386,7 @@ async function eliminarCaja(id) {
 
             if (dataJson.valor) {
                 aplicarFiltros();
-                exitoModal("Caja eliminado correctamente")
+                exitoModal("Caja eliminada correctamente")
             }
         } catch (error) {
             console.error("Ha ocurrido un error:", error);
@@ -414,7 +414,7 @@ async function configurarDataTable(data) {
                     render: function (data, type, row) {
                         const tipo = (row.Tipo || "").toUpperCase();
 
-                        if (tipo === "OPERACION" || tipo.includes("SALDO ANTERIOR")) {
+                        if (tipo === "GASTO" || tipo === "OPERACION" || tipo.includes("SALDO ANTERIOR")) {
                             return ""; // No mostramos nada
                         }
 

@@ -11,7 +11,7 @@ public partial class Gasto
 
     public int IdPuntoVenta { get; set; }
 
-    public DateTime FechaHoraRegistro { get; set; }
+    public DateTime Fecha { get; set; }
 
     public int IdMoneda { get; set; }
 
@@ -22,6 +22,10 @@ public partial class Gasto
     public decimal Importe { get; set; }
 
     public string? NotaInterna { get; set; }
+
+    public int IdCajaAsociado { get; set; }
+
+    public virtual Caja IdCajaAsociadoNavigation { get; set; } = null!;
 
     public virtual Cuenta IdCuentaNavigation { get; set; } = null!;
 
