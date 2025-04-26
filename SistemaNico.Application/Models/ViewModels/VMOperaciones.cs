@@ -16,6 +16,8 @@ namespace SistemaNico.Application.Models.ViewModels
 
         public int IdTipo { get; set; }
 
+        public string? NumeroOperacion { get; set; }
+
         public int IdMonedaIngreso { get; set; }
 
         public int IdCuentaIngreso { get; set; }

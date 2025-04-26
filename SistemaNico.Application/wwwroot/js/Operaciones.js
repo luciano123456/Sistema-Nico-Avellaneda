@@ -15,6 +15,7 @@ const columnConfig = [
     { index: 11, filterType: 'text' },
     { index: 12, filterType: 'text' },
     { index: 13, filterType: 'text' },
+    { index: 14, filterType: 'text' },
 ];
 
 
@@ -121,16 +122,16 @@ function validarCampoIndividual(el) {
         verificarErroresGenerales();
     }
 
-    // Validaciones adicionales
-    if (el.id.includes("Moneda")) {
-        if (el.id.includes("_Compra")) validarMonedasDistintas("Compra");
-        if (el.id.includes("_Venta")) validarMonedasDistintas("Venta");
-    }
+    //// Validaciones adicionales
+    //if (el.id.includes("Moneda")) {
+    //    if (el.id.includes("_Compra")) validarMonedasDistintas("Compra");
+    //    if (el.id.includes("_Venta")) validarMonedasDistintas("Venta");
+    //}
 
-    if (el.id.includes("Cuenta")) {
-        if (el.id.includes("_Compra")) validarCuentasDistintas("Compra");
-        if (el.id.includes("_Venta")) validarCuentasDistintas("Venta");
-    }
+    //if (el.id.includes("Cuenta")) {
+    //    if (el.id.includes("_Compra")) validarCuentasDistintas("Compra");
+    //    if (el.id.includes("_Venta")) validarCuentasDistintas("Venta");
+    //}
 }
 
 
@@ -471,9 +472,10 @@ async function guardarOperacion() {
         Cliente: $("#txtCliente").val(),
         IdCajaEgreso: parseInt($("#txtIdCajaEgreso").val() || 0),
         IdCajaIngreso: parseInt($("#txtIdCajaIngreso").val() || 0),
+        NumeroOperacion: $("#txtNroOperacion").val(),
+        NotaInterna: $("#txtNotaInterna").val(),
         IdUsuario: userSession.Id,
         IdUsuarioActualizacion: userSession.Id, // si estás actualizando, mismo usuario por ahora
-        NotaInterna: "",
 
         // Por defecto
         Cotizacion: 0,
@@ -662,6 +664,7 @@ async function configurarDataTable(data) {
                     orderable: false,
                     searchable: false,
                 },
+                { data: 'NumeroOperacion' },
                 { data: 'Fecha' },
                 { data: 'Cliente' },
                 { data: 'Usuario' },
@@ -688,7 +691,7 @@ async function configurarDataTable(data) {
                     filename: 'Reporte Operaciones',
                     title: '',
                     exportOptions: {
-                        columns: [1, 4, 5, 6, 7, 9, 10, 12]
+                        columns: [2, 1,6,7,8,9,10,11,12,13]
                     },
                     className: 'btn-exportar-excel',
                 },
@@ -698,7 +701,7 @@ async function configurarDataTable(data) {
                     filename: 'Reporte Operaciones',
                     title: '',
                     exportOptions: {
-                        columns: [1,4,5, 6,7,9,10,12]
+                        columns: [2, 1, 6, 7, 8, 9, 10, 11, 12, 13]
                     },
                     className: 'btn-exportar-pdf',
                 },
@@ -707,7 +710,7 @@ async function configurarDataTable(data) {
                     text: 'Imprimir',
                     title: '',
                     exportOptions: {
-                        columns: [0, 1, 2]
+                        columns: [2, 1, 6, 7, 8, 9, 10, 11, 12, 13]
                     },
                     className: 'btn-exportar-print'
                 },
@@ -721,7 +724,7 @@ async function configurarDataTable(data) {
                     "render": function (data, type, row) {
                         return formatNumber(data); // Formatear números
                     },
-                    "targets": [6, 9, 12] // Índices de las columnas de números
+                    "targets": [7, 10, 13] // Índices de las columnas de números
                 },
                 {
                     "render": function (data, type, row) {
@@ -730,7 +733,7 @@ async function configurarDataTable(data) {
                         }
                         return '';
                     },
-                    "targets": [1]
+                    "targets": [2]
                 }
 
 
@@ -819,7 +822,7 @@ function configurarOpcionesColumnas() {
             // Asegúrate de que la columna esté visible si el valor es 'true'
             grid.column(index).visible(isChecked);
 
-            const columnName = index != 6 ? col.data : "Direccion";
+            const columnName = col.data ;
 
             // Ahora agregamos el checkbox, asegurándonos de que se marque solo si 'isChecked' es 'true'
             container.append(`
@@ -898,6 +901,8 @@ async function mostrarModalOperacion(modelo) {
     document.getElementById("cbTipoOperacion").dispatchEvent(new Event("change"));
     document.getElementById("txtIdCajaEgreso").value = modelo.IdCajaEgreso;
     document.getElementById("txtIdCajaIngreso").value = modelo.IdCajaIngreso;
+    document.getElementById("txtNroOperacion").value = modelo.NumeroOperacion;
+    document.getElementById("txtNotaInterna").value = modelo.NotaInterna;
     
 
 
@@ -949,7 +954,7 @@ async function mostrarModalOperacion(modelo) {
     }
 
     document.getElementById("btnRegistrarGuardar").innerText = "Guardar";
-    document.getElementById("modalCotizacionLabel").innerText = "Modificar operación";
+    document.getElementById("modalCotizacionLabel").innerText = `Modificar operación ${modelo.NumeroOperacion != null ? modelo.NumeroOperacion : ""}`;
 
     validarCampos()
 
@@ -1203,26 +1208,26 @@ async function cargarCuentasNueva(idMoneda, tipoOperacion, sentido) {
 
 document.getElementById("cbMonedaIngresa_Compra").addEventListener("change", async (e) => {
     await cargarCuentasNueva(e.target.value, "Compra", "Ingresa");
-    actualizarComboOpuesto("Compra", "Ingresa", "Egresa");
-    validarMonedasDistintas("Compra");
+    //actualizarComboOpuesto("Compra", "Ingresa", "Egresa");
+    //validarMonedasDistintas("Compra");
 });
 
 document.getElementById("cbMonedaEgresa_Compra").addEventListener("change", async (e) => {
     await cargarCuentasNueva(e.target.value, "Compra", "Egresa");
-    actualizarComboOpuesto("Compra", "Egresa", "Ingresa");
-    validarMonedasDistintas("Compra");
+    //actualizarComboOpuesto("Compra", "Egresa", "Ingresa");
+    //validarMonedasDistintas("Compra");
 });
 
 document.getElementById("cbMonedaIngresa_Venta").addEventListener("change", async (e) => {
     await cargarCuentasNueva(e.target.value, "Venta", "Ingresa");
-    actualizarComboOpuesto("Venta", "Ingresa", "Egresa");
-    validarMonedasDistintas("Venta");
+    //actualizarComboOpuesto("Venta", "Ingresa", "Egresa");
+    //validarMonedasDistintas("Venta");
 });
 
 document.getElementById("cbMonedaEgresa_Venta").addEventListener("change", async (e) => {
     await cargarCuentasNueva(e.target.value, "Venta", "Egresa");
     actualizarComboOpuesto("Venta", "Egresa", "Ingresa");
-    validarMonedasDistintas("Venta");
+    //validarMonedasDistintas("Venta");
 });
 
 // VENTA

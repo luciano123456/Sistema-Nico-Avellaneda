@@ -78,6 +78,7 @@ namespace SistemaNico.DAL.Repository
                 operacion.FechaActualizacion = model.FechaActualizacion;
                 operacion.IdUsuarioActualizacion = model.IdUsuarioActualizacion;
                 operacion.Cliente = model.Cliente;
+                operacion.NumeroOperacion = model.NumeroOperacion;
 
                 await _dbcontext.SaveChangesAsync();
                 await trans.CommitAsync();
@@ -188,7 +189,8 @@ namespace SistemaNico.DAL.Repository
                     NotaInterna = model.NotaInterna,
                     IdCajaEgreso = cajaEgreso.Id,
                     IdCajaIngreso = cajaIngreso.Id,
-                    Cliente = model.Cliente
+                    Cliente = model.Cliente,
+                    NumeroOperacion = model.NumeroOperacion
                 };
 
                 _dbcontext.Operaciones.Add(operacion);

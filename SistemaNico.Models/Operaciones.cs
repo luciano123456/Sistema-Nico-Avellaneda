@@ -26,6 +26,7 @@ public partial class Operaciones
     public int IdMonedaEgreso { get; set; }
 
     public int IdCuentaEgreso { get; set; }
+    public string? NumeroOperacion { get; set; }
 
     public decimal ImporteEgreso { get; set; }
 
