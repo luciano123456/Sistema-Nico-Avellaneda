@@ -151,7 +151,8 @@ namespace SistemaNico.DAL.Repository
             if (IdMoneda != -2)
                 query = query.Where(x => x.IdMoneda == IdMoneda);
 
-            query = query.Where(x => x.IdCuenta == IdCuenta);
+            if (IdCuenta != -1)
+                query = query.Where(x => x.IdCuenta == IdCuenta);
 
             return await query.ToListAsync();
         }

@@ -700,7 +700,7 @@ function configurarOpcionesColumnas() {
             // Asegúrate de que la columna esté visible si el valor es 'true'
             grid.column(index).visible(isChecked);
 
-            const columnName = index != 6 ? col.data : "Direccion";
+            const columnName = col.data;
 
             // Ahora agregamos el checkbox, asegurándonos de que se marque solo si 'isChecked' es 'true'
             container.append(`
@@ -1261,7 +1261,7 @@ async function cargarCuentasFiltro(moneda) {
     // Agregar opción "Seleccionar"
     const defaultOption = document.createElement("option");
     defaultOption.text = "Seleccionar";
-    defaultOption.value = "";
+    defaultOption.value = "-1";
     defaultOption.disabled = true;
     defaultOption.selected = true;
     select.appendChild(defaultOption);
@@ -1312,10 +1312,67 @@ document.getElementById("chkSeleccionarTodas").addEventListener("change", functi
     checkboxes.forEach(cb => cb.checked = this.checked);
 });
 
+// FUNCIONES AUXILIARES
+function toBase64(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = function () {
+            const canvas = document.createElement("canvas");
+            canvas.width = this.naturalWidth;
+            canvas.height = this.naturalHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(this, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+        };
+        img.onerror = () => reject("Error cargando imagen");
+        img.src = url;
+    });
+}
+
+function drawGradientRect(doc, x, y, width, height, startColor, endColor, steps = 30) {
+    const rStep = (endColor.r - startColor.r) / steps;
+    const gStep = (endColor.g - startColor.g) / steps;
+    const bStep = (endColor.b - startColor.b) / steps;
+    const stepHeight = height / steps;
+
+    for (let i = 0; i < steps; i++) {
+        const r = Math.round(startColor.r + rStep * i);
+        const g = Math.round(startColor.g + gStep * i);
+        const b = Math.round(startColor.b + bStep * i);
+        doc.setFillColor(r, g, b);
+        doc.rect(x, y + i * stepHeight, width, stepHeight, 'F');
+    }
+}
+
+function drawRoundedGradientRect(doc, x, y, width, height, radius, startColor, endColor, steps = 25) {
+    // Fondo base con bordes redondeados
+    doc.setFillColor(startColor.r, startColor.g, startColor.b);
+    doc.roundedRect(x, y, width, height, radius, radius, 'F');
+
+    // Degradado interior, con margen para que no tape bordes
+    const stepHeight = height / steps;
+    const rStep = (endColor.r - startColor.r) / steps;
+    const gStep = (endColor.g - startColor.g) / steps;
+    const bStep = (endColor.b - startColor.b) / steps;
+
+    const innerX = x + 1;
+    const innerWidth = width - 2;
+
+    for (let i = 0; i < steps; i++) {
+        const r = Math.round(startColor.r + rStep * i);
+        const g = Math.round(startColor.g + gStep * i);
+        const b = Math.round(startColor.b + bStep * i);
+
+        doc.setFillColor(r, g, b);
+        
+    }
+}
+
+// FUNCIÓN PRINCIPAL
 async function exportarPdfSeleccion() {
     const fechaDesde = document.getElementById("fechaDesdePdf").value;
     const fechaHasta = document.getElementById("fechaHastaPdf").value;
-
     const checkboxes = document.querySelectorAll("#listaCuentasPdf input[type='checkbox']:checked");
     const cuentasSeleccionadas = Array.from(checkboxes).map(el => el.value);
 
@@ -1325,133 +1382,192 @@ async function exportarPdfSeleccion() {
     }
 
     const doc = new jspdf.jsPDF();
+    const logoBase64 = await toBase64("/Imagenes/logo.png");
+    let y = 20;
 
-    let totalGlobalIngreso = 0;
-    let totalGlobalEgreso = 0;
-    let totalGlobalSaldo = 0;
+    // TÍTULO CON FONDO GRIS Y LOGO
+    const titulo = `Informe de cajas: ${moment(fechaDesde).format("DD/MM/YYYY")} - ${moment(fechaHasta).format("DD/MM/YYYY")}`;
+
+    if (logoBase64) {
+        doc.addImage(logoBase64, 'PNG', 60, 5, 80, 25);
+    }
+
+    y += 20;
+
+    drawGradientRect(doc, 12, y - 5, 185, 18,
+        { r: 240, g: 240, b: 240 },
+        { r: 220, g: 220, b: 220 },
+        30
+    );
+
+    doc.setTextColor(33, 33, 33);
+    doc.setFontSize(16);
+    doc.setFont(undefined, 'bold');
+    doc.text(titulo, 14, y + 6);
+
+    
+  
+
+    y += 20;
+
+    // AGRUPAR POR MONEDA
+    let gruposPorMoneda = {};
 
     for (let idCuenta of cuentasSeleccionadas) {
         const response = await fetch(`/Cajas/Lista?FechaDesde=${fechaDesde}&FechaHasta=${fechaHasta}&IdPuntoVenta=-1&IdMoneda=-2&IdCuenta=${idCuenta}`);
         const movimientos = await response.json();
-
         if (!movimientos || movimientos.length === 0) continue;
 
         const nombreCuenta = movimientos[0].Cuenta || "Cuenta desconocida";
+        const idMoneda = movimientos[0].IdMoneda;
+        const nombreMoneda = movimientos[0].Moneda || "Moneda desconocida";
 
-        let ingresoTotal = 0;
-        let egresoTotal = 0;
-        let saldoAcumulado = 0;
-
-        // Definir posición del título
-        let startY = 20;
-
-        if (doc.lastAutoTable) {
-            startY = doc.lastAutoTable.finalY + 15;
-            const espacioDisponible = doc.internal.pageSize.height - startY;
-            const alturaEstimadaTabla = 100;
-
-            if (espacioDisponible < alturaEstimadaTabla) {
-                doc.addPage();
-                startY = 20;
-            }
+        if (!gruposPorMoneda[idMoneda]) {
+            gruposPorMoneda[idMoneda] = { nombre: nombreMoneda, cuentas: [] };
         }
 
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(0, 128, 0);
-        doc.text(`Cuenta: ${nombreCuenta}`, 14, startY);
-        doc.setTextColor(0, 0, 0);
+        gruposPorMoneda[idMoneda].cuentas.push({ idCuenta, nombreCuenta, movimientos, saldoFinal: 0 });
+    }
 
-        const body = [];
+    for (const idMoneda in gruposPorMoneda) {
+        const grupo = gruposPorMoneda[idMoneda];
 
-        // Mostrar saldo anterior si existe
-        if (movimientos[0].SaldoAnterior !== undefined) {
-            saldoAcumulado = parseFloat(movimientos[0].SaldoAnterior) || 0;
+        for (const cuenta of grupo.cuentas) {
+            let movimientos = cuenta.movimientos;
+            let ingresoTotal = 0;
+            let egresoTotal = 0;
+            let saldoAcumulado = parseFloat(movimientos[0].SaldoAnterior) || 0;
+
+            if (y > 250) {
+                doc.addPage();
+                y = 20;
+            }
+
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(0, 128, 0);
+            doc.text(`Cuenta: ${cuenta.nombreCuenta}`, 14, y);
+            doc.setTextColor(0, 0, 0);
+
+            const body = [];
+
+            if (movimientos[0].SaldoAnterior !== undefined) {
+                body.push([
+                    "", "", {
+                        content: `Saldo anterior al ${moment(fechaDesde).format("DD/MM/YYYY")}`,
+                        styles: {
+                            fontStyle: 'bold',
+                            textColor: [0, 128, 0]
+                        }
+                    }, "", "",
+                    {
+                        content: formatNumber(saldoAcumulado),
+                        styles: {
+                            fontStyle: 'bold',
+                            textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34]
+                        }
+                    }
+                ]);
+            }
+
+
+            for (const mov of movimientos) {
+                const ingreso = parseFloat(mov.Ingreso) || 0;
+                const egreso = parseFloat(mov.Egreso) || 0;
+
+                ingresoTotal += ingreso;
+                egresoTotal += egreso;
+                saldoAcumulado += ingreso - egreso;
+
+                body.push([
+                    mov.Fecha ? moment(mov.Fecha).format("DD/MM/YYYY HH:mm") : "",
+                    mov.Concepto,
+                    mov.Tipo,
+                    ingreso > 0 ? formatNumber(ingreso) : "",
+                    egreso > 0 ? formatNumber(egreso) : "",
+                    {
+                        content: formatNumber(saldoAcumulado),
+                        styles: { textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34] }
+                    }
+                ]);
+            }
 
             body.push([
-                "",
-                "",
-                {
-                    content: `Saldo anterior al ${fechaDesde}`,
-                    styles: {
-                        textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34],
-                        fontStyle: 'bold'
-                    }
-                },
-                "",
-                "",
-                {
-                    content: formatNumber(saldoAcumulado),
-                    styles: {
-                        textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34],
-                        fontStyle: 'bold'
-                    }
-                }
+                { content: "Totales", colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
+                formatNumber(ingresoTotal),
+                formatNumber(egresoTotal),
+                ""
             ]);
 
-        }
-
-        for (const mov of movimientos) {
-            const ingreso = parseFloat(mov.Ingreso) || 0;
-            const egreso = parseFloat(mov.Egreso) || 0;
-
-            ingresoTotal += ingreso;
-            egresoTotal += egreso;
-            saldoAcumulado += ingreso - egreso;
-
             body.push([
-                mov.Fecha ? moment(mov.Fecha).format("DD/MM/YYYY HH:mm") : "",
-                mov.Concepto,
-                mov.Tipo,
-                ingreso > 0 ? formatNumber(ingreso) : "",
-                egreso > 0 ? formatNumber(egreso) : "",
+                { content: "Saldo Final", colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
                 {
                     content: formatNumber(saldoAcumulado),
                     styles: {
+                        fontStyle: 'bold',
                         textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34]
                     }
                 }
             ]);
+
+            doc.autoTable({
+                head: [["Fecha", "Concepto", "Tipo", "Ingreso", "Egreso", "Saldo"]],
+                body: body,
+                startY: y + 5,
+                theme: "grid",
+                styles: { fontSize: 10, textColor: [0, 0, 0] },
+                headStyles: { fillColor: [0, 128, 0], textColor: 255 }
+            });
+
+            y = doc.lastAutoTable.finalY + 20;
+            cuenta.saldoFinal = saldoAcumulado;
         }
 
-        // Footer totales
-        body.push([
-            { content: "Totales", colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
-            formatNumber(ingresoTotal),
-            formatNumber(egresoTotal),
-            ""
-        ]);
+        // BLOQUE TOTALES POR MONEDA
+        if (y > 250) {
+            doc.addPage();
+            y = 20;
+        }
 
-        body.push([
-            { content: "Saldo Final", colSpan: 5, styles: { halign: 'right', fontStyle: 'bold' } },
-            {
-                content: formatNumber(saldoAcumulado),
-                styles: {
-                    textColor: saldoAcumulado >= 0 ? [0, 128, 0] : [178, 34, 34],
-                    fontStyle: 'bold'
-                }
-            }
-        ]);
+        y += 5;
+        const alturaResumen = 10 + grupo.cuentas.length * 7 + 10;
 
-        doc.autoTable({
-            head: [["Fecha", "Concepto", "Tipo", "Ingreso", "Egreso", "Saldo"]],
-            body: body,
-            startY: startY + 5,
-            theme: "grid",
-            styles: {
-                lineColor: [0, 128, 0],
-                textColor: [0, 0, 0]
-            },
-            headStyles: {
-                fillColor: [0, 128, 0],
-                textColor: 255,
-                fontStyle: "bold"
-            }
-        });
+        drawRoundedGradientRect(
+            doc,
+            14,
+            y - 10,
+            180,
+            alturaResumen,
+            5,
+            { r: 230, g: 255, b: 230 },
+            { r: 200, g: 240, b: 200 },
+            25
+        );
 
+        y += 1;
+        doc.setFontSize(12);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 128, 0);
+        doc.text(`Totales ${grupo.nombre}:`, 20, y);
+        y += 4;
+
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        let sumaMoneda = 0;
+
+        for (const cuenta of grupo.cuentas) {
+            doc.setFont(undefined, cuenta.saldoFinal < 0 ? 'italic' : 'normal');
+            doc.setTextColor(cuenta.saldoFinal < 0 ? 178 : 0, cuenta.saldoFinal < 0 ? 34 : 0, 34);
+            doc.text(`Saldo ${cuenta.nombreCuenta}: ${formatNumber(cuenta.saldoFinal)}`, 20, y);
+            y += 4;
+            sumaMoneda += cuenta.saldoFinal;
+        }
+
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(sumaMoneda >= 0 ? 0 : 178, sumaMoneda >= 0 ? 128 : 34, 0);
+        doc.text(`Suma cuentas ${grupo.nombre}: ${formatNumber(sumaMoneda)}`, 20, y + 4);
+        y += 20;
     }
-
- 
 
     doc.save(`Cajas_${fechaDesde}_a_${fechaHasta}.pdf`);
     $('#modalExportarPdf').modal('hide');

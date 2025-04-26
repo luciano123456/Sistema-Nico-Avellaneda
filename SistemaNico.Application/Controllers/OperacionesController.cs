@@ -55,7 +55,8 @@ namespace SistemaNico.Application.Controllers
                 CuentaEgreso = c.IdCuentaEgresoNavigation.Nombre != null ? c.IdCuentaEgresoNavigation.Nombre : "",
                 PuntoDeVenta = c.IdPuntoVentaNavigation.Nombre != null ? c.IdPuntoVentaNavigation.Nombre : "",
                 MonedaEgreso = c.IdMonedaEgresoNavigation.Nombre != null ? c.IdMonedaEgresoNavigation.Nombre : "",
-                MonedaIngreso = c.IdMonedaIngresoNavigation.Nombre != null ? c.IdMonedaIngresoNavigation.Nombre : ""
+                MonedaIngreso = c.IdMonedaIngresoNavigation.Nombre != null ? c.IdMonedaIngresoNavigation.Nombre : "",
+                NumeroOperacion = c.NumeroOperacion
             }).ToList();
 
             return Ok(lista);
@@ -101,6 +102,7 @@ namespace SistemaNico.Application.Controllers
                 ImporteIngreso = model.ImporteIngreso,
                 ImporteEgreso = model.ImporteEgreso,
                 Cliente = model.Cliente,
+                NumeroOperacion = model.NumeroOperacion
             };
 
             bool respuesta = await _OperacionesService.Insertar(Rol);
@@ -133,7 +135,8 @@ namespace SistemaNico.Application.Controllers
                 ImporteEgreso = model.ImporteEgreso,
                 Cliente = model.Cliente,
                 IdUsuarioActualizacion = userSession.Id,
-                FechaActualizacion = DateTime.Now
+                FechaActualizacion = DateTime.Now,
+                NumeroOperacion = model.NumeroOperacion
             };
 
             bool respuesta = await _OperacionesService.Actualizar(operacion);
@@ -180,7 +183,8 @@ namespace SistemaNico.Application.Controllers
                     UsuarioActualizacion = model.IdUsuarioActualizacionNavigation != null ? model.IdUsuarioActualizacionNavigation.Nombre : "",
                     Tipo = model.IdTipoNavigation != null ? model.IdTipoNavigation.Nombre : "",
                     CuentaIngreso = model.IdCuentaEgresoNavigation != null ? model.IdCuentaEgresoNavigation.Nombre : "",
-                    PuntoDeVenta = model.IdPuntoVentaNavigation != null ? model.IdPuntoVentaNavigation.Nombre : ""
+                    PuntoDeVenta = model.IdPuntoVentaNavigation != null ? model.IdPuntoVentaNavigation.Nombre : "",
+                    NumeroOperacion = model.NumeroOperacion
                 };
 
 
