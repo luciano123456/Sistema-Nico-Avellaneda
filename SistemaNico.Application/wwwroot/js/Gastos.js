@@ -32,18 +32,19 @@ $(document).ready(async () => {
     if (userSession.IdRol == 1) {
         document.getElementById("Filtros").removeAttribute("hidden");
         await listaUsuariosFiltro();
+        await listaTiposGastosFiltro();
         await listaPuntosDeVentaFiltro();
         await listaGastos(
             document.getElementById("txtFechaDesde").value,
             document.getElementById("txtFechaHasta").value,
-            -1, -1
+            -1, -1, -1
         );
     } else {
         await listaGastos(
             document.getElementById("txtFechaDesde").value,
             document.getElementById("txtFechaHasta").value,
             userSession.IdPuntoVenta,
-            userSession.Id
+            userSession.Id, -1
         );
     }
 
@@ -60,6 +61,29 @@ $(document).ready(async () => {
 
 
 })
+
+async function listaTiposGastosFiltro() {
+   
+    const data = await listaTiposGastos();
+
+    $('#TiposGastosFiltro option').remove();
+
+    select = document.getElementById("TiposGastosFiltro");
+
+    option = document.createElement("option");
+    option.value = -1;
+    option.text = "Todos";
+    select.appendChild(option);
+
+    for (i = 0; i < data.length; i++) {
+        option = document.createElement("option");
+        option.value = data[i].Id;
+        option.text = data[i].Nombre;
+        select.appendChild(option);
+
+    }
+}
+
 
 async function listaUsuariosFiltro() {
     const url = `/Usuarios/Lista`;
@@ -109,11 +133,12 @@ async function listaPuntosDeVentaFiltro() {
 
 async function aplicarFiltros() {
     if (userSession.IdRol == 1) {
-        listaGastos(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, document.getElementById("PuntosDeVentaFiltro").value, document.getElementById("UsuariosFiltro").value)
+        listaGastos(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, document.getElementById("PuntosDeVentaFiltro").value, document.getElementById("UsuariosFiltro").value, document.getElementById("TiposGastosFiltro").value)
     } else {
-        listaGastos(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, userSession.IdPuntoVenta, userSession.Id);
+        listaGastos(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, userSession.IdPuntoVenta, userSession.Id, document.getElementById("TiposGastosFiltro").value);
     }
 }
+
 
 
 function validarCampoIndividual(el) {
@@ -196,7 +221,8 @@ function validarCampos() {
         "#cbMoneda",
         "#txtImporte",
         "#cbCuenta",
-        "#cbPuntoDeVenta"
+        "#cbPuntoDeVenta",
+        "#cbTipoGasto"
         // NO incluir: "#txtConcepto", "#txtNota"
     ];
 
@@ -254,6 +280,7 @@ function guardarGasto() {
             "IdMoneda": parseInt($("#cbMoneda").val()),
             "IdUsuario": userSession.Id,
             "IdCuenta": parseInt($("#cbCuenta").val()),
+            "IdTipo": parseInt($("#cbTipoGasto").val()),
             "IdCajaAsociado": idGasto !== "" ? parseInt(idCaja) : 0,
             "Importe": convertirMonedaAfloat($("#txtImporte").val()),
             "Concepto": $("#txtConcepto").val(),
@@ -276,13 +303,17 @@ function guardarGasto() {
                 return response.json();
             })
             .then(dataJson => {
-                const mensaje = idGasto === ""
-                    ? "Gasto registrado correctamente"
-                    : "Gasto modificado correctamente";
+                if (dataJson.valor) {
+                    const mensaje = idGasto === ""
+                        ? "Gasto registrado correctamente"
+                        : "Gasto modificado correctamente";
 
-                $('#modalEdicion').modal('hide');
-                exitoModal(mensaje);
-                aplicarFiltros();
+                    $('#modalEdicion').modal('hide');
+                    exitoModal(mensaje);
+                    aplicarFiltros();
+                } else {
+                    errorModal('Ocurrió un error al guardar el gasto');
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -303,6 +334,7 @@ async function nuevoGasto() {
 
     await cargarPuntosDeVenta();
     await cargarMonedas();
+    await cargarTiposGastos();
 
     if (userSession.IdRol != 1) {
         document.getElementById("cbPuntoDeVenta").value = userSession.IdPuntoVenta;
@@ -392,6 +424,31 @@ async function cargarMonedas() {
     }
 }
 
+async function cargarTiposGastos() {
+
+    const data = await listaTiposGastos();
+
+    const select = document.getElementById(`cbTipoGasto`);
+    select.innerHTML = ""; // limpia todo
+
+    // Agregar opción "Seleccionar"
+    const defaultOption = document.createElement("option");
+    defaultOption.text = "Seleccionar";
+    defaultOption.value = "";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    // Agregar opciones desde la API
+    for (let i = 0; i < data.length; i++) {
+        const option = document.createElement("option");
+        option.value = data[i].Id;
+        option.text = data[i].Nombre;
+        select.appendChild(option);
+    }
+}
+
+
 async function cargarPuntosDeVenta() {
 
     const data = await listaPuntosDeVenta();
@@ -434,6 +491,14 @@ async function listaPuntosDeVenta() {
     return data;
 }
 
+async function listaTiposGastos() {
+    const url = `/GastosTipos/Lista`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data;
+}
+
 
 async function mostrarModal(modelo) {
     const campos = ["Id", "Gasto", "Nombre", "Apellido", "Dni", "Telefono", "Direccion", "Contrasena", "ContrasenaNueva"];
@@ -460,8 +525,8 @@ async function mostrarModal(modelo) {
 }
 
 
-async function listaGastos(FechaDesde, FechaHasta, IdPuntoVenta, IdUsuario) {
-    const url = `/Gastos/Lista?FechaDesde=${FechaDesde}&FechaHasta=${FechaHasta}&IdPuntoVenta=${IdPuntoVenta}&IdUsuario=${IdUsuario}`;
+async function listaGastos(FechaDesde, FechaHasta, IdPuntoVenta, IdUsuario, IdTipoGasto) {
+    const url = `/Gastos/Lista?FechaDesde=${FechaDesde}&FechaHasta=${FechaHasta}&IdPuntoVenta=${IdPuntoVenta}&IdUsuario=${IdUsuario}&IdTipoGasto=${IdTipoGasto}`;
     const response = await fetch(url);
     const data = await response.json();
     await configurarDataTable(data);
@@ -484,6 +549,7 @@ const editarGasto = async id => {
         document.getElementById("txtIdCaja").value = data.IdCajaAsociado;
         await cargarCuentas(data.IdMoneda); // si las cuentas dependen de la moneda
         document.getElementById("cbCuenta").value = data.IdCuenta;
+        document.getElementById("cbTipoGasto").value = data.IdTipo;
         document.getElementById("cbPuntoDeVenta").value = data.IdPuntoVenta;
         document.getElementById("txtImporte").value = formatNumber(data.Importe);
         document.getElementById("txtConcepto").value = data.Concepto;
@@ -501,6 +567,28 @@ const editarGasto = async id => {
         errorModal("Error al editar el gasto.");
     }
 };
+
+async function calcularGastos() {
+    let data = gridGastos.rows().data(); // 👈 TODOS los datos, no solo la página actual
+
+
+    let total = 0;
+
+    for (let i = 0; i < data.length; i++) {
+        total += parseFloat(data[i].Importe) || 0;
+    }
+
+
+    document.getElementById("txtTotalGasto").value = formatNumber(total);
+
+    const inputSaldo = document.getElementById("txtTotalGasto");
+
+    inputSaldo.style.fontWeight = "bold"; // 👈 negrita
+
+   
+
+}
+
 
 async function eliminarGasto(id) {
     let resultado = window.confirm("¿Desea eliminar el Gasto?");
@@ -609,7 +697,7 @@ async function configurarDataTable(data) {
                 'pageLength'
             ],
             orderCellsTop: true,
-            fixedHeader: true,
+            fixedHeader: false,
 
             "columnDefs": [
                 {
@@ -633,6 +721,8 @@ async function configurarDataTable(data) {
 
             initComplete: async function () {
                 var api = this.api();
+
+                calcularGastos();
 
                 // Iterar sobre las columnas y aplicar la configuración de filtros
                 columnConfig.forEach(async (config) => {
@@ -692,6 +782,7 @@ async function configurarDataTable(data) {
         });
     } else {
         gridGastos.clear().rows.add(data).draw();
+        calcularGastos();
     }
 }
 

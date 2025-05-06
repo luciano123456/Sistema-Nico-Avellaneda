@@ -154,7 +154,9 @@ namespace SistemaNico.DAL.Repository
             if (IdCuenta != -1)
                 query = query.Where(x => x.IdCuenta == IdCuenta);
 
-            return await query.ToListAsync();
+            return await query
+       .OrderByDescending(x => x.Fecha)
+       .ToListAsync();
         }
 
 

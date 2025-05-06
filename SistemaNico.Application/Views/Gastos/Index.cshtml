@@ -15,7 +15,7 @@
     <link href="https://cdn.datatables.net/fixedheader/3.2.2/css/fixedHeader.dataTables.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="~/css/Gastos.css?v=1.0" rel="stylesheet" />
+    <link href="~/css/Gastos.css?v=1.1" rel="stylesheet" />
 
 }
 
@@ -41,6 +41,11 @@
         <label class="lblfiltro">Usuario</label>
         <select id="UsuariosFiltro" name="select" class="input-nuevo">
             <option value="" selected>Usuario</option>
+        </select>
+
+        <label class="lblfiltro">Tipo de Gasto</label>
+        <select id="TiposGastosFiltro" name="select" class="input-nuevo">
+            <option value="" selected>Tipo de Gasto</option>
         </select>
 
         <div class="vw-75 d-flex float-lg-end mt-2">
@@ -84,9 +89,33 @@
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-end mt-2 mb-4">
-                    <a class="btn btn-primary btnnuevo" onclick="nuevoGasto()">Nuevo</a>
+
+                <div class="totales-botones-container mb-4">
+
+                    <!-- Sumas -->
+                    <div class="grupo-totales">
+                        <div class="form-group mb-0">
+                            <label class="form-label fw-bold">Suma de gastos</label>
+                            <input type="text" class="form-control form-control-sm text-start" id="txtTotalGasto" readonly>
+                        </div>
+
+                      
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="grupo-botones ">
+
+                       
+                        <button class="btn btn-success d-flex align-items-center px-3 py-2 text-center" onclick="nuevoGasto()">
+                            <i class="fa fa-plus-square"></i> Nuevo
+                        </button>
+
+
+                    </div>
                 </div>
+
+
+               
 
             </div>
         </div>
@@ -110,15 +139,23 @@
                     <input type="text" class="form-control" id="txtIdCaja" hidden>
 
                     <!-- Fila 1 -->
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="txtFecha" class="form-label text-black">Fecha</label>
                         <input type="datetime-local" class="form-control" id="txtFecha">
                         <div class="invalid-feedback">Campo obligatorio</div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="cbPuntoDeVenta" class="form-label text-black">Punto de Venta</label>
                         <select id="cbPuntoDeVenta" class="form-select">
+                            <option selected disabled>Seleccionar</option>
+                        </select>
+                        <div class="invalid-feedback">Campo obligatorio</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="cbTipoGasto" class="form-label text-black">Tipo de Gasto</label>
+                        <select id="cbTipoGasto" class="form-select">
                             <option selected disabled>Seleccionar</option>
                         </select>
                         <div class="invalid-feedback">Campo obligatorio</div>
@@ -216,6 +253,6 @@
     <script src="https://cdn.datatables.net/fixedheader/3.2.2/js/dataTables.fixedHeader.min.js"></script>
 
 
-    <script src="~/js/Gastos.js?v=1.0"></script>
+    <script src="~/js/Gastos.js?v=1.1"></script>
    
 }

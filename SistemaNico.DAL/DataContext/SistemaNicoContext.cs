@@ -8,7 +8,6 @@ namespace SistemaNico.DAL.DataContext;
 
 public partial class SistemaNicoContext : DbContext
 {
-
     private readonly IConfiguration _configuration;
 
 
@@ -32,6 +31,8 @@ public partial class SistemaNicoContext : DbContext
 
     public virtual DbSet<Gasto> Gastos { get; set; }
 
+    public virtual DbSet<GastosTipo> GastosTipos { get; set; }
+
     public virtual DbSet<Modulo> Modulos { get; set; }
 
     public virtual DbSet<ModulosFunciones> ModulosFunciones { get; set; }
@@ -50,7 +51,7 @@ public partial class SistemaNicoContext : DbContext
 
     public virtual DbSet<UsuariosRoles> UsuariosRoles { get; set; }
 
- 
+  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Caja>(entity =>
@@ -128,10 +129,23 @@ public partial class SistemaNicoContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Gastos_Puntos_De_Venta");
 
+            entity.HasOne(d => d.IdTipoNavigation).WithMany(p => p.Gastos)
+                .HasForeignKey(d => d.IdTipo)
+                .HasConstraintName("FK_Gastos_Gastos_Tipos");
+
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Gastos)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Gastos_Usuarios");
+        });
+
+        modelBuilder.Entity<GastosTipo>(entity =>
+        {
+            entity.ToTable("Gastos_Tipos");
+
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(100)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Modulo>(entity =>
