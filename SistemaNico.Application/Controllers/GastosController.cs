@@ -27,9 +27,9 @@ namespace SistemaNico.Application.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Lista(DateTime FechaDesde, DateTime FechaHasta, int IdPuntoVenta, int IdUsuario)
+        public async Task<IActionResult> Lista(DateTime FechaDesde, DateTime FechaHasta, int IdPuntoVenta, int IdUsuario, int IdTipoGasto)
         {
-            var Gastos = await _Gastoservice.ObtenerTodos(FechaDesde, FechaHasta, IdPuntoVenta, IdUsuario);
+            var Gastos = await _Gastoservice.ObtenerTodos(FechaDesde, FechaHasta, IdPuntoVenta, IdUsuario, IdTipoGasto);
 
             var lista = Gastos.Select(c => new VMGastos
             {
@@ -46,6 +46,7 @@ namespace SistemaNico.Application.Controllers
                 Moneda = c.IdMonedaNavigation != null ? c.IdMonedaNavigation.Nombre : "",
                 Cuenta = c.IdCuentaNavigation != null ? c.IdCuentaNavigation.Nombre : "",
                 PuntoDeVenta = c.IdPuntoVentaNavigation != null ? c.IdPuntoVentaNavigation.Nombre : "",
+                TipoGasto = c.IdTipoNavigation != null ? c.IdTipoNavigation.Nombre : ""
             }).ToList();
 
             return Ok(lista);
@@ -67,6 +68,7 @@ namespace SistemaNico.Application.Controllers
                 Fecha = model.Fecha,
                 NotaInterna = model.NotaInterna,
                 Importe = model.Importe,
+                IdTipo = model.IdTipo
             };
 
             bool respuesta = await _Gastoservice.Insertar(Gasto);
@@ -88,7 +90,8 @@ namespace SistemaNico.Application.Controllers
                 Fecha = model.Fecha,
                 NotaInterna = model.NotaInterna,
                 Importe = model.Importe,
-                IdCajaAsociado = model.IdCajaAsociado
+                IdCajaAsociado = model.IdCajaAsociado,
+                IdTipo = model.IdTipo
             };
 
             // Realiza la actualización en la base de datos

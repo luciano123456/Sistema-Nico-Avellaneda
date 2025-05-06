@@ -25,6 +25,8 @@ public partial class Gasto
 
     public int IdCajaAsociado { get; set; }
 
+    public int? IdTipo { get; set; }
+
     public virtual Caja IdCajaAsociadoNavigation { get; set; } = null!;
 
     public virtual Cuenta IdCuentaNavigation { get; set; } = null!;
@@ -32,6 +34,8 @@ public partial class Gasto
     public virtual Moneda IdMonedaNavigation { get; set; } = null!;
 
     public virtual PuntosDeVenta IdPuntoVentaNavigation { get; set; } = null!;
+
+    public virtual GastosTipo? IdTipoNavigation { get; set; }
 
     public virtual User IdUsuarioNavigation { get; set; } = null!;
 }

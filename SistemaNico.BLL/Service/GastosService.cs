@@ -33,9 +33,9 @@ namespace SistemaNico.BLL.Service
         }
 
 
-        public async Task<IQueryable<Gasto>> ObtenerTodos(DateTime FechaDesde, DateTime FechaHasta, int IdPuntoVenta, int IdUsuario)
+        public async Task<IQueryable<Gasto>> ObtenerTodos(DateTime FechaDesde, DateTime FechaHasta, int IdPuntoVenta, int IdUsuario, int IdTipoGasto)
         {
-            return await _contactRepo.ObtenerTodos(FechaDesde, FechaHasta, IdPuntoVenta, IdUsuario);
+            return await _contactRepo.ObtenerTodos(FechaDesde, FechaHasta, IdPuntoVenta, IdUsuario,IdTipoGasto);
         }
 
 

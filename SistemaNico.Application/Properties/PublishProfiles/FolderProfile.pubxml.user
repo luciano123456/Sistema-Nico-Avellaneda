@@ -3,7 +3,7 @@
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>D:\Publicaciones Webs\Sistema Nico</_PublishTargetUrl>
-    <History>True|2025-04-25T05:02:07.7055893Z||;True|2025-04-25T02:01:56.8158633-03:00||;True|2025-04-25T01:59:36.2860368-03:00||;True|2025-04-25T01:48:36.6325680-03:00||;True|2025-04-25T01:39:58.4038976-03:00||;True|2025-04-25T01:36:54.5227465-03:00||;False|2025-04-25T01:36:43.1194289-03:00||;True|2025-04-24T22:11:51.9710747-03:00||;True|2025-04-24T15:34:07.7326625-03:00||;True|2025-04-24T12:47:10.4491689-03:00||;True|2025-04-24T12:44:33.6964155-03:00||;True|2025-04-24T02:14:46.9418069-03:00||;True|2025-04-24T02:13:02.4597199-03:00||;True|2025-04-24T02:09:35.6076147-03:00||;True|2025-04-24T02:09:27.5489914-03:00||;True|2025-04-22T13:50:48.8079215-03:00||;</History>
+    <History>True|2025-04-26T05:54:13.6621334Z||;True|2025-04-26T02:45:05.0430095-03:00||;True|2025-04-25T02:02:07.7055893-03:00||;True|2025-04-25T02:01:56.8158633-03:00||;True|2025-04-25T01:59:36.2860368-03:00||;True|2025-04-25T01:48:36.6325680-03:00||;True|2025-04-25T01:39:58.4038976-03:00||;True|2025-04-25T01:36:54.5227465-03:00||;False|2025-04-25T01:36:43.1194289-03:00||;True|2025-04-24T22:11:51.9710747-03:00||;True|2025-04-24T15:34:07.7326625-03:00||;True|2025-04-24T12:47:10.4491689-03:00||;True|2025-04-24T12:44:33.6964155-03:00||;True|2025-04-24T02:14:46.9418069-03:00||;True|2025-04-24T02:13:02.4597199-03:00||;True|2025-04-24T02:09:35.6076147-03:00||;True|2025-04-24T02:09:27.5489914-03:00||;True|2025-04-22T13:50:48.8079215-03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
@@ -11,19 +11,19 @@
       <publishTime>04/24/2025 02:20:16</publishTime>
     </File>
     <File Include="Views/Cajas/Index.cshtml">
-      <publishTime>04/25/2025 02:01:48</publishTime>
+      <publishTime>04/26/2025 02:44:24</publishTime>
     </File>
     <File Include="Views/Cuentas/Index.cshtml">
       <publishTime>04/18/2025 04:29:30</publishTime>
     </File>
     <File Include="Views/Gastos/Index.cshtml">
-      <publishTime>04/25/2025 01:59:16</publishTime>
+      <publishTime>04/26/2025 02:44:35</publishTime>
     </File>
     <File Include="Views/Login/Index.cshtml">
       <publishTime>03/31/2025 09:50:05</publishTime>
     </File>
     <File Include="Views/Operaciones/Index.cshtml">
-      <publishTime>04/25/2025 02:01:39</publishTime>
+      <publishTime>04/26/2025 02:44:43</publishTime>
     </File>
     <File Include="Views/PuntosDeVenta/Index.cshtml">
       <publishTime>04/24/2025 02:20:16</publishTime>
@@ -35,7 +35,7 @@
       <publishTime>03/31/2025 09:50:05</publishTime>
     </File>
     <File Include="Views/Shared/Partials/NavBarLogin.cshtml">
-      <publishTime>04/25/2025 01:43:05</publishTime>
+      <publishTime>04/26/2025 01:45:25</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
       <publishTime>03/31/2025 09:50:05</publishTime>

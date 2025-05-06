@@ -53,7 +53,7 @@ namespace SistemaNico.DAL.Repository
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
                 return false;
@@ -149,7 +149,7 @@ namespace SistemaNico.DAL.Repository
         }
 
 
-        public async Task<IQueryable<Gasto>> ObtenerTodos(DateTime FechaDesde, DateTime FechaHasta, int IdPuntoVenta, int IdUsuario)
+        public async Task<IQueryable<Gasto>> ObtenerTodos(DateTime FechaDesde, DateTime FechaHasta, int IdPuntoVenta, int IdUsuario, int IdTipoGasto)
         {
             // Agregamos 1 día a FechaHasta para incluir el día completo
             DateTime fechaHastaExclusiva = FechaHasta.Date.AddDays(1);
@@ -159,6 +159,7 @@ namespace SistemaNico.DAL.Repository
                     .Include(c => c.IdCuentaNavigation)
                     .Include(c => c.IdPuntoVentaNavigation)
                     .Include(c => c.IdUsuarioNavigation)
+                    .Include(c => c.IdTipoNavigation)
                 .Where(x => x.Fecha >= FechaDesde.Date && x.Fecha < fechaHastaExclusiva);
 
             if (IdPuntoVenta != -1)
@@ -166,6 +167,9 @@ namespace SistemaNico.DAL.Repository
 
             if (IdUsuario != -1)
                 query = query.Where(x => x.IdUsuario == IdUsuario);
+
+            if (IdTipoGasto != -1)
+                query = query.Where(x => x.IdTipo == IdTipoGasto);
 
             return await Task.FromResult(query);
         }
