@@ -9,21 +9,21 @@ using System.Diagnostics;
 namespace SistemaNico.Application.Controllers
 {
     [Authorize]
-    public class MonedasController : Controller
+    public class MovimientosTiposConceptoController : Controller
     {
-        private readonly IMonedasService _MonedasService;
+        private readonly IMovimientosTiposConceptoService _MovimientosTiposConceptoService;
 
-        public MonedasController(IMonedasService MonedasService)
+        public MovimientosTiposConceptoController(IMovimientosTiposConceptoService MovimientosTiposConceptoService)
         {
-            _MonedasService = MonedasService;
+            _MovimientosTiposConceptoService = MovimientosTiposConceptoService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Lista()
         {
-            var Monedas = await _MonedasService.ObtenerTodos();
+            var MovimientosTiposConcepto = await _MovimientosTiposConceptoService.ObtenerTodos();
 
-            var lista = Monedas.Select(c => new VMMonedas
+            var lista = MovimientosTiposConcepto.Select(c => new VMMovimientosTiposConcepto
             {
                 Id = c.Id,
                 Nombre = c.Nombre,
@@ -34,29 +34,29 @@ namespace SistemaNico.Application.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Insertar([FromBody] VMMonedas model)
+        public async Task<IActionResult> Insertar([FromBody] VMMovimientosTiposConcepto model)
         {
-            var Moneda = new Moneda
+            var modelo = new MovimientosTiposConcepto
             {
                 Id = model.Id,
                 Nombre = model.Nombre,
             };
 
-            bool respuesta = await _MonedasService.Insertar(Moneda);
+            bool respuesta = await _MovimientosTiposConceptoService.Insertar(modelo);
 
             return Ok(new { valor = respuesta });
         }
 
         [HttpPut]
-        public async Task<IActionResult> Actualizar([FromBody] VMMonedas model)
+        public async Task<IActionResult> Actualizar([FromBody] VMMovimientosTiposConcepto model)
         {
-            var Moneda = new Moneda
+            var modelo = new MovimientosTiposConcepto
             {
                 Id = model.Id,
                 Nombre = model.Nombre,
             };
 
-            bool respuesta = await _MonedasService.Actualizar(Moneda);
+            bool respuesta = await _MovimientosTiposConceptoService.Actualizar(modelo);
 
             return Ok(new { valor = respuesta });
         }
@@ -64,7 +64,7 @@ namespace SistemaNico.Application.Controllers
         [HttpDelete]
         public async Task<IActionResult> Eliminar(int id)
         {
-            bool respuesta = await _MonedasService.Eliminar(id);
+            bool respuesta = await _MovimientosTiposConceptoService.Eliminar(id);
 
             return StatusCode(StatusCodes.Status200OK, new { valor = respuesta });
         }
@@ -72,11 +72,11 @@ namespace SistemaNico.Application.Controllers
         [HttpGet]
         public async Task<IActionResult> EditarInfo(int id)
         {
-             var Moneda = await _MonedasService.Obtener(id);
+             var modelo = await _MovimientosTiposConceptoService.Obtener(id);
 
-            if (Moneda != null)
+            if (modelo != null)
             {
-                return StatusCode(StatusCodes.Status200OK, Moneda);
+                return StatusCode(StatusCodes.Status200OK, modelo);
             }
             else
             {

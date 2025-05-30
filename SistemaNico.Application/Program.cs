@@ -56,6 +56,10 @@ builder.Services.AddScoped<IGastosService, GastosService>();
 builder.Services.AddScoped<IGastosTiposRepository<GastosTipo>, GastosTiposRepository>();
 builder.Services.AddScoped<IGastosTiposService, GastosTiposService>();
 
+builder.Services.AddScoped<IMovimientosTiposConceptoRepository<MovimientosTiposConcepto>, MovimientosTiposConceptoRepository>();
+builder.Services.AddScoped<IMovimientosTiposConceptoService, MovimientosTiposConceptoService>();
+
+
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(o =>
     {

@@ -6,7 +6,7 @@ using SistemaNico.BLL.Service;
 using SistemaNico.Models;
 using System.Diagnostics;
 
-namespace SistemaNico.Application.ContEstadosUsuariolers
+namespace SistemaNico.Application.Controllers
 {
     [Authorize]
     public class EstadosUsuariosController : Controller

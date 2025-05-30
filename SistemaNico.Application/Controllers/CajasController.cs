@@ -49,7 +49,7 @@ namespace SistemaNico.Application.Controllers
                
             }).ToList();
 
-            if (IdMoneda > 0 && (IdCuenta > 0 || IdCuenta == -2))
+            if (IdMoneda > 0)
             {
                 var fechaMinima = new DateTime(2000, 1, 1);
                 decimal saldoAnterior = 0;
@@ -216,6 +216,7 @@ namespace SistemaNico.Application.Controllers
                 IdUsuario = model.IdUsuario,
                 IdTipo = model.IdTipo,
                 IdPuntoVenta = model.IdPuntoVenta,
+                IdTipoMovimiento = model.IdTipoMovimiento,
                 Tipo = "Usuario"
             };
 
@@ -240,6 +241,7 @@ namespace SistemaNico.Application.Controllers
                 IdUsuario = model.IdUsuario,
                 IdTipo = model.IdTipo,
                 IdPuntoVenta = model.IdPuntoVenta,
+                IdTipoMovimiento = model.IdTipoMovimiento,
                 Tipo = "Usuario"
             };
 

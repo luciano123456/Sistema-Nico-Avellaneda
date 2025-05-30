@@ -12,6 +12,7 @@ namespace SistemaNico.Application.Models.ViewModels
         public int IdTipo { get; set; }
         public int IdUsuario { get; set; }
         public int IdPuntoVenta { get; set; }
+        public int IdTipoMovimiento { get; set; }
         public DateTime Fecha { get; set; }
     }
 }

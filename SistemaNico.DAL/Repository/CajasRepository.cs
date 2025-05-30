@@ -113,6 +113,7 @@ namespace SistemaNico.DAL.Repository
                 existente.IdUsuario = caja.IdUsuario;
                 existente.IdTipo = caja.IdTipo;
                 existente.IdPuntoVenta = caja.IdPuntoVenta;
+                existente.IdTipoMovimiento = caja.IdTipoMovimiento;
 
                 _dbcontext.Cajas.Update(existente);
                 await _dbcontext.SaveChangesAsync();

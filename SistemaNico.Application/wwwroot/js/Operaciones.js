@@ -264,6 +264,8 @@ function limpiarModal() {
     // Limpiar campos comunes
     document.getElementById("txtId").value = "";
     document.getElementById("txtCliente").value = "";
+    document.getElementById("txtNroOperacion").value = "";
+    document.getElementById("txtNotaInterna").value = "";
     document.getElementById("cbPuntoVenta").selectedIndex = 0;
     document.getElementById("cbTipoOperacion").selectedIndex = 0;
 
@@ -742,6 +744,9 @@ async function configurarDataTable(data) {
             initComplete: async function () {
                 var api = this.api();
 
+
+                await calcularIndicadoresFinancieros();
+
                 // Iterar sobre las columnas y aplicar la configuración de filtros
                 columnConfig.forEach(async (config) => {
                     var cell = $('.filters th').eq(config.index);
@@ -800,6 +805,7 @@ async function configurarDataTable(data) {
         });
     } else {
         gridOperaciones.clear().rows.add(data).draw();
+        await calcularIndicadoresFinancieros();
     }
 }
 
@@ -967,6 +973,7 @@ async function aplicarFiltros() {
     } else {
         listaOperaciones(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, -1, userSession.IdPuntoVenta, userSession.Id);
     }
+ 
 }
 
 async function listaUsuariosFiltro() {
@@ -1308,4 +1315,58 @@ function actualizarCampoARS_V2(tipoOperacion) {
             txtImporteIngreso.value = formatNumber(importeEgreso * cotizacion);
         }
     }
+}
+
+async function calcularIndicadoresFinancieros() {
+    if (!gridOperaciones || gridOperaciones.rows().count() === 0) {
+        document.getElementById("txtPromedioVenta").value = formatNumber(0);
+        document.getElementById("txtPromedioCompra").value = formatNumber(0);
+        document.getElementById("txtPromedioOperado").value = formatNumber(0);
+        document.getElementById("txtGanancia").value = formatNumber(0);
+
+        const inputGanancia = document.getElementById("txtGanancia");
+        inputGanancia.classList.remove("text-success", "text-danger");
+        inputGanancia.classList.add("text-success");
+        inputGanancia.style.fontWeight = "bold";
+        return;
+    }
+
+    let data = gridOperaciones.rows().data();
+
+    let totalVenta = 0;
+    let cantidadVenta = 0;
+
+    let totalCompra = 0;
+    let cantidadCompra = 0;
+
+    for (let i = 0; i < data.length; i++) {
+        const mov = data[i];
+        const tipo = (mov.Tipo || "").toUpperCase();
+        const importe = parseFloat(mov.ImporteIngreso || mov.ImporteEgreso || 0);
+
+        if (tipo === "VENTA") {
+            totalVenta += importe;
+            cantidadVenta++;
+        }
+
+        if (tipo === "COMPRA") {
+            totalCompra += importe;
+            cantidadCompra++;
+        }
+    }
+
+    const promedioVenta = cantidadVenta > 0 ? totalVenta / cantidadVenta : 0;
+    const promedioCompra = cantidadCompra > 0 ? totalCompra / cantidadCompra : 0;
+    const promedioOperado = (promedioVenta + promedioCompra) / 2;
+    const ganancia = promedioVenta - promedioCompra;
+
+    document.getElementById("txtPromedioVenta").value = formatNumber(promedioVenta);
+    document.getElementById("txtPromedioCompra").value = formatNumber(promedioCompra);
+    document.getElementById("txtPromedioOperado").value = formatNumber(promedioOperado);
+    document.getElementById("txtGanancia").value = formatNumber(ganancia);
+
+    const inputGanancia = document.getElementById("txtGanancia");
+    inputGanancia.style.fontWeight = "bold";
+    inputGanancia.classList.toggle("text-success", ganancia >= 0);
+    inputGanancia.classList.toggle("text-danger", ganancia < 0);
 }
