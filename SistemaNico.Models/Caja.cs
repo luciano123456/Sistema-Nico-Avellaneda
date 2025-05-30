@@ -21,11 +21,13 @@ public partial class Caja
 
     public int IdCuenta { get; set; }
 
-    public string Concepto { get; set; } = null!;
-
     public decimal? Ingreso { get; set; }
 
     public decimal Egreso { get; set; }
+
+    public int? IdTipoMovimiento { get; set; }
+
+    public string? Concepto { get; set; }
 
     public virtual ICollection<Gasto> Gastos { get; set; } = new List<Gasto>();
 
@@ -34,6 +36,8 @@ public partial class Caja
     public virtual Moneda IdMonedaNavigation { get; set; } = null!;
 
     public virtual PuntosDeVenta IdPuntoVentaNavigation { get; set; } = null!;
+
+    public virtual MovimientosTiposConcepto? IdTipoMovimientoNavigation { get; set; }
 
     public virtual User IdUsuarioNavigation { get; set; } = null!;
 

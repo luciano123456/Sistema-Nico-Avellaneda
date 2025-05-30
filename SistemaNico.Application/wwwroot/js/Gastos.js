@@ -150,7 +150,7 @@ function validarCampoIndividual(el) {
         feedback.textContent = "Campo obligatorio";
     }
 
-    if (el.id === "txtConcepto" || el.id === "txtNotaInterna") {
+    if (el.id === "txtNotaInterna") {
         el.classList.remove("is-invalid", "is-valid");
         return;
     }
@@ -222,8 +222,9 @@ function validarCampos() {
         "#txtImporte",
         "#cbCuenta",
         "#cbPuntoDeVenta",
-        "#cbTipoGasto"
-        // NO incluir: "#txtConcepto", "#txtNota"
+        "#cbTipoGasto",
+        "#txtConcepto"
+        // NO incluir: "#txtNota"
     ];
 
 

@@ -8,11 +8,15 @@ namespace SistemaNico.DAL.DataContext;
 
 public partial class SistemaNicoContext : DbContext
 {
+
     private readonly IConfiguration _configuration;
 
+    public SistemaNicoContext()
+    {
+    }
 
     public SistemaNicoContext(DbContextOptions<SistemaNicoContext> options)
-     : base(options)
+        : base(options)
     {
     }
 
@@ -24,6 +28,7 @@ public partial class SistemaNicoContext : DbContext
             optionsBuilder.UseSqlServer(connectionString);
         }
     }
+
 
     public virtual DbSet<Caja> Cajas { get; set; }
 
@@ -39,6 +44,8 @@ public partial class SistemaNicoContext : DbContext
 
     public virtual DbSet<Moneda> Monedas { get; set; }
 
+    public virtual DbSet<MovimientosTiposConcepto> MovimientosTiposConceptos { get; set; }
+
     public virtual DbSet<Operaciones> Operaciones { get; set; }
 
     public virtual DbSet<OperacionesTipo> OperacionesTipos { get; set; }
@@ -52,12 +59,13 @@ public partial class SistemaNicoContext : DbContext
     public virtual DbSet<UsuariosRoles> UsuariosRoles { get; set; }
 
   
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Caja>(entity =>
         {
             entity.Property(e => e.Concepto)
-                .HasMaxLength(200)
+                .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.Egreso).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Fecha).HasColumnType("datetime");
@@ -80,6 +88,10 @@ public partial class SistemaNicoContext : DbContext
                 .HasForeignKey(d => d.IdPuntoVenta)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Cajas_Puntos_De_Venta");
+
+            entity.HasOne(d => d.IdTipoMovimientoNavigation).WithMany(p => p.Cajas)
+                .HasForeignKey(d => d.IdTipoMovimiento)
+                .HasConstraintName("FK_Cajas_Movmientos_TiposConceptos");
 
             entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Cajas)
                 .HasForeignKey(d => d.IdUsuario)
@@ -112,6 +124,7 @@ public partial class SistemaNicoContext : DbContext
 
             entity.HasOne(d => d.IdCajaAsociadoNavigation).WithMany(p => p.Gastos)
                 .HasForeignKey(d => d.IdCajaAsociado)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Gastos_Cajas");
 
             entity.HasOne(d => d.IdCuentaNavigation).WithMany(p => p.Gastos)
@@ -176,6 +189,17 @@ public partial class SistemaNicoContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<MovimientosTiposConcepto>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_Movmientos_TiposConceptos");
+
+            entity.ToTable("Movimientos_TiposConceptos");
+
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(150)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Operaciones>(entity =>
         {
             entity.Property(e => e.Cliente)
@@ -188,6 +212,9 @@ public partial class SistemaNicoContext : DbContext
             entity.Property(e => e.ImporteIngreso).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.NotaInterna)
                 .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.NumeroOperacion)
+                .HasMaxLength(75)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.IdCajaEgresoNavigation).WithMany(p => p.OperacioneIdCajaEgresoNavigations)

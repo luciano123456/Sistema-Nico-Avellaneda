@@ -27,6 +27,7 @@ $(document).ready(async () => {
   
     await listaMonedasFiltro();
     await listaPuntosDeVentaFiltro();
+  
 
     if (userSession.IdRol == 1) {
         document.getElementById("Filtros").removeAttribute("hidden");
@@ -65,6 +66,7 @@ async function nuevoMovimiento() {
    
     await cargarPuntosDeVentaMovimiento();
     await cargarMonedasMovimiento();
+    await listaTiposMovimientoConcepto();
 
     $('#modalMovimiento').modal('show');
 }
@@ -351,6 +353,7 @@ const editarCaja = async id => {
             document.getElementById("txtIdMovimiento").value = data.Id;
             document.getElementById("txtFechaMovimiento").value = moment(data.Fecha).format("YYYY-MM-DDTHH:mm");
             document.getElementById("cbMonedaMovimiento").value = data.IdMoneda;
+            document.getElementById("cbTipoMovimientoConcepto").value = data.IdTipoMovimiento;
             await cargarCuentasMovimiento(data.IdMoneda);
             document.getElementById("cbCuentaMovimiento").value = data.IdCuenta;
             document.getElementById("txtImporteMovimiento").value = data.IdTipo == 1 ? formatNumber(data.Ingreso) : formatNumber(data.Egreso);
@@ -562,6 +565,7 @@ async function configurarDataTable(data) {
             initComplete: async function () {
 
                 calcularIngresos();
+                
 
                 var api = this.api();
 
@@ -756,7 +760,8 @@ function validarCamposMovimiento() {
         "#txtImporteMovimiento",
         "#cbCuentaMovimiento",
         "#cbPuntoDeVentaMovimiento",
-        "#cbTipoMovimiento"
+        "#cbTipoMovimiento",
+        "#cbTipoMovimientoConcepto"
         // NO incluir: "#txtConcepto", "#txtNota"
     ];
 
@@ -1031,6 +1036,7 @@ async function guardarMovimiento() {
             IdCuenta: parseInt(document.getElementById("cbCuentaMovimiento").value),
             IdTipo: parseInt(document.getElementById("cbTipoMovimiento").value),
             IdPuntoVenta: parseInt(document.getElementById("cbPuntoDeVentaMovimiento").value),
+            IdTipoMovimiento: parseInt(document.getElementById("cbTipoMovimientoConcepto").value),
             IdUsuario: parseInt(userSession.Id)
         };
 
@@ -1221,6 +1227,33 @@ async function listaUsuariosFiltro() {
 
     }
 }
+
+async function listaTiposMovimientoConcepto() {
+    const url = `/MovimientosTiposConcepto/Lista`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    $('#cbTipoMovimientoConcepto option').remove();
+
+    select = document.getElementById("cbTipoMovimientoConcepto");
+
+    // Agregar opción "Seleccionar"
+    const defaultOption = document.createElement("option");
+    defaultOption.text = "Seleccionar";
+    defaultOption.value = "";
+    defaultOption.disabled = true;
+    defaultOption.selected = true;
+    select.appendChild(defaultOption);
+
+    for (i = 0; i < data.length; i++) {
+        option = document.createElement("option");
+        option.value = data[i].Id;
+        option.text = data[i].Nombre;
+        select.appendChild(option);
+
+    }
+}
+
 
 async function listaPuntosDeVentaFiltro() {
     const url = `/PuntosDeVenta/Lista`;
@@ -1575,4 +1608,6 @@ async function exportarPdfSeleccion() {
     $('#modalExportarPdf').modal('hide');
     exitoModal("PDF generado correctamente");
 }
+
+
 
