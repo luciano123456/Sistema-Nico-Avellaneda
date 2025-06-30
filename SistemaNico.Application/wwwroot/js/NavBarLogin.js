@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (userSession) {
 
-        if (userSession.IdRol == 1) {
+        if (userSession.IdRol == 1 || userSession.IdRol == 3) {
             document.getElementById("seccionPuntosDeVenta").removeAttribute("hidden");
             document.getElementById("seccionCuentas").removeAttribute("hidden");
             document.getElementById("seccionConfiguraciones").removeAttribute("hidden");
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("seccionGastos").removeAttribute("hidden");
         }
 
-        if (userSession.IdPuntoVenta != null && userSession.IdRol != 1) {
+        if (userSession.IdPuntoVenta != null && userSession.IdRol != 1 && userSession.IdRol != 3) {
             document.getElementById("seccionCajas").removeAttribute("hidden");
             document.getElementById("seccionOperaciones").removeAttribute("hidden");
             document.getElementById("seccionGastos").removeAttribute("hidden");

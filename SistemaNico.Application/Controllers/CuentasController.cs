@@ -22,7 +22,7 @@ namespace SistemaNico.Application.Controllers
         {
             var userSession = SessionHelper.GetUsuarioSesion(HttpContext);
 
-            if (userSession.Result.IdRol != 1)
+            if (userSession.Result.IdRol != 1 && userSession.Result.IdRol != 3)
             {
                 return RedirectToAction("Index", "AccesoDenegado");
             }

@@ -3,7 +3,7 @@
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>D:\Publicaciones Webs\Sistema Nico</_PublishTargetUrl>
-    <History>True|2025-05-28T03:43:44.4281880Z||;True|2025-05-28T00:31:35.3388304-03:00||;True|2025-05-28T00:31:13.8717052-03:00||;True|2025-05-28T00:27:53.6765124-03:00||;True|2025-04-26T02:54:13.6621334-03:00||;True|2025-04-26T02:45:05.0430095-03:00||;True|2025-04-25T02:02:07.7055893-03:00||;True|2025-04-25T02:01:56.8158633-03:00||;True|2025-04-25T01:59:36.2860368-03:00||;True|2025-04-25T01:48:36.6325680-03:00||;True|2025-04-25T01:39:58.4038976-03:00||;True|2025-04-25T01:36:54.5227465-03:00||;False|2025-04-25T01:36:43.1194289-03:00||;True|2025-04-24T22:11:51.9710747-03:00||;True|2025-04-24T15:34:07.7326625-03:00||;True|2025-04-24T12:47:10.4491689-03:00||;True|2025-04-24T12:44:33.6964155-03:00||;True|2025-04-24T02:14:46.9418069-03:00||;True|2025-04-24T02:13:02.4597199-03:00||;True|2025-04-24T02:09:35.6076147-03:00||;True|2025-04-24T02:09:27.5489914-03:00||;True|2025-04-22T13:50:48.8079215-03:00||;</History>
+    <History>True|2025-05-30T02:49:19.3864678Z||;True|2025-05-28T00:43:44.4281880-03:00||;True|2025-05-28T00:31:35.3388304-03:00||;True|2025-05-28T00:31:13.8717052-03:00||;True|2025-05-28T00:27:53.6765124-03:00||;True|2025-04-26T02:54:13.6621334-03:00||;True|2025-04-26T02:45:05.0430095-03:00||;True|2025-04-25T02:02:07.7055893-03:00||;True|2025-04-25T02:01:56.8158633-03:00||;True|2025-04-25T01:59:36.2860368-03:00||;True|2025-04-25T01:48:36.6325680-03:00||;True|2025-04-25T01:39:58.4038976-03:00||;True|2025-04-25T01:36:54.5227465-03:00||;False|2025-04-25T01:36:43.1194289-03:00||;True|2025-04-24T22:11:51.9710747-03:00||;True|2025-04-24T15:34:07.7326625-03:00||;True|2025-04-24T12:47:10.4491689-03:00||;True|2025-04-24T12:44:33.6964155-03:00||;True|2025-04-24T02:14:46.9418069-03:00||;True|2025-04-24T02:13:02.4597199-03:00||;True|2025-04-24T02:09:35.6076147-03:00||;True|2025-04-24T02:09:27.5489914-03:00||;True|2025-04-22T13:50:48.8079215-03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
@@ -11,19 +11,19 @@
       <publishTime>04/24/2025 02:20:16</publishTime>
     </File>
     <File Include="Views/Cajas/Index.cshtml">
-      <publishTime>05/28/2025 00:27:21</publishTime>
+      <publishTime>05/29/2025 23:48:27</publishTime>
     </File>
     <File Include="Views/Cuentas/Index.cshtml">
       <publishTime>04/18/2025 04:29:30</publishTime>
     </File>
     <File Include="Views/Gastos/Index.cshtml">
-      <publishTime>05/28/2025 00:27:17</publishTime>
+      <publishTime>05/29/2025 23:48:33</publishTime>
     </File>
     <File Include="Views/Login/Index.cshtml">
-      <publishTime>03/31/2025 09:50:05</publishTime>
+      <publishTime>05/29/2025 23:48:41</publishTime>
     </File>
     <File Include="Views/Operaciones/Index.cshtml">
-      <publishTime>05/28/2025 00:30:56</publishTime>
+      <publishTime>05/29/2025 23:48:56</publishTime>
     </File>
     <File Include="Views/PuntosDeVenta/Index.cshtml">
       <publishTime>04/24/2025 02:20:16</publishTime>
@@ -35,7 +35,7 @@
       <publishTime>03/31/2025 09:50:05</publishTime>
     </File>
     <File Include="Views/Shared/Partials/NavBarLogin.cshtml">
-      <publishTime>05/28/2025 00:43:26</publishTime>
+      <publishTime>05/29/2025 23:48:50</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
       <publishTime>03/31/2025 09:50:05</publishTime>

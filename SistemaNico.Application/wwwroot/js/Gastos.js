@@ -29,7 +29,7 @@ $(document).ready(async () => {
     document.getElementById("txtFechaHasta").value = moment().format('YYYY-MM-DD');
 
     // Filtros visibles solo para admin
-    if (userSession.IdRol == 1) {
+    if (userSession.IdRol == 1 || userSession.IdRol == 3) {
         document.getElementById("Filtros").removeAttribute("hidden");
         await listaUsuariosFiltro();
         await listaTiposGastosFiltro();
@@ -132,7 +132,7 @@ async function listaPuntosDeVentaFiltro() {
 }
 
 async function aplicarFiltros() {
-    if (userSession.IdRol == 1) {
+    if (userSession.IdRol == 1 || userSession.IdRol == 3) {
         listaGastos(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, document.getElementById("PuntosDeVentaFiltro").value, document.getElementById("UsuariosFiltro").value, document.getElementById("TiposGastosFiltro").value)
     } else {
         listaGastos(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, userSession.IdPuntoVenta, userSession.Id, document.getElementById("TiposGastosFiltro").value);
@@ -337,7 +337,7 @@ async function nuevoGasto() {
     await cargarMonedas();
     await cargarTiposGastos();
 
-    if (userSession.IdRol != 1) {
+    if (userSession.IdRol != 1 && userSession.IdRol != 3) {
         document.getElementById("cbPuntoDeVenta").value = userSession.IdPuntoVenta;
         document.getElementById("cbPuntoDeVenta").setAttribute("disabled", true)
     }
