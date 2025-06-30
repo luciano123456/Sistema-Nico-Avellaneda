@@ -26,8 +26,19 @@ $(document).ready(async () => {
     document.getElementById("txtFechaDesde").value = moment().format('YYYY-MM-DD');
     document.getElementById("txtFechaHasta").value = moment().format('YYYY-MM-DD');
 
-    // Filtros visibles solo para admin
+   const div = document.getElementById("divPromedios");
+
     if (userSession.IdRol == 1) {
+        div.classList.remove("d-none");
+        div.classList.add("d-flex");
+    } else {
+        div.classList.remove("d-flex");
+        div.classList.add("d-none");
+    }
+
+
+    // Filtros visibles solo para admin
+    if (userSession.IdRol == 1 && userSession.IdRol != 3) {
         document.getElementById("Filtros").removeAttribute("hidden");
         await listaUsuariosFiltro();
         await listaPuntosDeVentaFiltro();
@@ -552,7 +563,7 @@ async function nuevaOperacion() {
     await listaTipos();
     await listaPuntosDeVenta();
    
-    if (userSession.IdRol != 1) {
+    if (userSession.IdRol != 1 && userSession.IdRol != 3) {
         document.getElementById("cbPuntoVenta").value = userSession.IdPuntoVenta;
         document.getElementById("cbPuntoVenta").setAttribute("disabled", true);
     }
@@ -654,7 +665,7 @@ async function configurarDataTable(data) {
                         <button class='btn btn-sm btneditar' type='button' onclick='editarOperacion(${data})' title='Editar'>
                             <i class='fa fa-pencil-square-o fa-lg text-success' aria-hidden='true'></i> Editar
                         </button>
-                        ${userSession.IdRol == 1
+                        ${userSession.IdRol == 1 || userSession.IdRol == 3
                                 ? `<button class='btn btn-sm btneliminar' type='button' onclick='eliminarOperacion(${data})' title='Eliminar'>
                     <i class='fa fa-trash-o fa-lg text-danger' aria-hidden='true'></i> Eliminar
                    </button>`
@@ -948,7 +959,7 @@ async function mostrarModalOperacion(modelo) {
        
     }
 
-    if (userSession.IdRol != 1) {
+    if (userSession.IdRol != 1 && userSession.IdRol != 3) {
         document.getElementById("cbPuntoVenta").value = userSession.IdPuntoVenta;
         document.getElementById("cbPuntoVenta").setAttribute("disabled", true);
     }
@@ -968,7 +979,7 @@ async function mostrarModalOperacion(modelo) {
 }
 
 async function aplicarFiltros() {
-    if (userSession.IdRol == 1) {
+    if (userSession.IdRol == 1 || userSession.IdRol == 3) {
         listaOperaciones(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, document.getElementById("TipoDeOperacionFiltro").value, document.getElementById("PuntosDeVentaFiltro").value, document.getElementById("UsuariosFiltro").value)
     } else {
         listaOperaciones(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, -1, userSession.IdPuntoVenta, userSession.Id);

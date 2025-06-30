@@ -59,7 +59,7 @@
                     // Redirigir a la página principal
                     localStorage.setItem('userSession', JSON.stringify(data.user)); // Guardar el usuario
 
-                    if (data.user.IdRol == 1) {
+                    if (data.user.IdRol == 1 || data.user.IdRol == 3) {
                         window.location.href = data.redirectUrl + 'Operaciones/Index';
                     } else {
                         window.location.href = data.redirectUrl + 'PuntosDeVenta/Login';

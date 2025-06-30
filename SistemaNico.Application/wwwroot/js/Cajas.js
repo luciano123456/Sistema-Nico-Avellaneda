@@ -29,7 +29,7 @@ $(document).ready(async () => {
     await listaPuntosDeVentaFiltro();
   
 
-    if (userSession.IdRol == 1) {
+    if (userSession.IdRol == 1 || userSession.IdRol == 3) {
         document.getElementById("Filtros").removeAttribute("hidden");
         document.getElementById("txtFechaDesde").value = moment().add(-7, 'days').format('YYYY-MM-DD');
         document.getElementById("txtFechaHasta").value = moment().format('YYYY-MM-DD');
@@ -89,7 +89,7 @@ async function nuevaTransferencia() {
     await cargarMonedas();
     await cargarPuntosDeVenta();
 
-    if (userSession.IdRol != 1) {
+    if (userSession.IdRol != 1 && userSession.IdRol != 3) {
         document.getElementById("cbPuntoDeVenta").value = userSession.IdPuntoVenta;
         document.getElementById("cbPuntoDeVenta").setAttribute("disabled", true)
     }
@@ -1174,7 +1174,7 @@ function verificarErroresGeneralesTransferencia() {
 
 
 async function aplicarFiltros() {
-    if (userSession.IdRol == 1) {
+    if (userSession.IdRol == 1 || userSession.IdRol == 3) {
         listaCajas(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, document.getElementById("PuntosDeVentaFiltro").value, document.getElementById("MonedasFiltro").value, document.getElementById("CuentasFiltro").value);
     } else {
         listaCajas(document.getElementById("txtFechaDesde").value, document.getElementById("txtFechaHasta").value, userSession.IdPuntoVenta, document.getElementById("MonedasFiltro").value, document.getElementById("CuentasFiltro").value);

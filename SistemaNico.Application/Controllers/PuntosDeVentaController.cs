@@ -23,7 +23,7 @@ namespace SistemaNico.Application.Controllers
             // Obtener el usuario actual desde la sesión usando el helper inyectado
             var userSession = SessionHelper.GetUsuarioSesion(HttpContext);
 
-            if (userSession.Result.IdRol != 1)
+            if (userSession.Result.IdRol != 1 && userSession.Result.IdRol != 3)
             {
                 return RedirectToAction("Index", "AccesoDenegado");
             }
